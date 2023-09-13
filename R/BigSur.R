@@ -1,3 +1,24 @@
+#' BigSur (Basic Informatics and Gene Statistics from Unnormalized Reads)
+#'
+#' @param seurat.obj Seurat object containing the raw transcript counts filtered for zero count genes.
+#' @param assay Assay slot containing raw transcript counts (default "RNA").
+#' @param counts.slot Slot within assay containing raw counts matrix (default "counts").
+#' @param c Boolean, double. The coefficient of variation for
+#' @param variable.features Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.
+#' @param correlations Boolean. If true, BigSur will identify statistically significant gene-gene correlations.
+#' @param first.pass.cutoff Integer. Removes roots before p-value calculations if the root is below Abs[Sqrt(2)*InverseErfc(2*10^-first.pass.cutoff)]. The higher the number, the more correlations are removed in initial screening.
+#' @param inverse.fano.moments Boolean. If true, BigSur will calculate the moments for the inverse Fano factor pairs before performing Cornish Fisher expansion.
+#' @param fano.alpha Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
+#' @param min.fano Double. Minimum mcFano value considered for variable genes.
+#' @param cor.alpha Double. Desired false discovery cutoff for labeling of statistically significant correlations.
+#' @param log.file Boolean. If true, a log file will be created.
+#' @param log.file.dir String. Path of desired location for log file.
+#'
+#' @return If both variable features and correlations are identified, a list containing the updated Seurat object and the
+#' statistically significant correlations is returned. If only one process is selected, their respective output is returned alone.
+#' @export
+#'
+#' @examples
 BigSur <- function(seurat.obj,
                    assay = "RNA",
                    counts.slot="counts",
@@ -109,14 +130,14 @@ BigSur <- function(seurat.obj,
       log_print("Sign matrix calculated.")
     }
 
-    equivalent.pccs <- get.inferred.PCCs.2(cor.p, cor.signmat, residuals$num.cells, num.genes)
+    equivalent.pccs <- get.inferred.PCCs(cor.p, cor.signmat, residuals$num.cells, num.genes)
     if(log.file==T){
       log_print("Equivalent PCCs calculated in.")
     }
     sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, alpha)
 
     if(log.file==T){
-      log_print("Equivalent PCCs filtered for significants.")
+      log_print("Equivalent PCCs filtered for significance.")
       log_print(paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs)))
     }
   }

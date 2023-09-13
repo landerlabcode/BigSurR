@@ -15,7 +15,7 @@ get.significant.inferred.PCCs <- function(p.matrix, inferred.PCCs, num.genes, al
   return(sig.PCCs)
 }
 
-get.inferred.PCCs.2 <- function(p.matrix, signMat,n, num.genes){
+get.inferred.PCCs <- function(p.matrix, signMat,n, num.genes){
 
   print("Calculating inferred Pearson Correlation Coefficients.")
 
