@@ -4,7 +4,7 @@ BigSur is a tool for single cell RNA sequencing analysis which interfaces with S
 - Select statistically significant features to use in clustering.
 - Identify statistically significant correlations between genes.
 
-The principles surrounding these analyses are described in ["Leveraging gene correlations in single cell transcriptomic data"].
+The principles surrounding these analyses are described in ["Leveraging gene correlations in single cell transcriptomic data"][1].
 [1]:"https://www.biorxiv.org/content/10.1101/2023.03.14.532643v1"
 
 To change:
