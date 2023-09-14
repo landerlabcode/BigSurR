@@ -134,7 +134,7 @@ BigSur <- function(seurat.obj,
     if(log.file==T){
       log_print("Equivalent PCCs calculated in.")
     }
-    sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, alpha)
+    sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, cor.alpha)
 
     if(log.file==T){
       log_print("Equivalent PCCs filtered for significance.")
