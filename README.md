@@ -41,8 +41,7 @@ example.output <- BigSur(example.seurat, variable.feature=T, correlations=T)
 If both variable features and correlations are identified, a list containing the updated Seurat object and the an adjacency matrix of the statistically significant correlations is returned. If only one process is selected, their respective output is returned alone.
 
 To change:
-- Add documentation for help function
-- Add example usage
+- Assert version specifics for dependencies 
 - Add more assertions to prevent improper use
 - Change import structure to remove warnings from unused function conflicts
 - Change minimum Fano factor from a set number to a quantile-based one.

@@ -9,4 +9,5 @@ Description: More about what it does (maybe more than one line)
 License: MIT License
 Encoding: UTF-8
 LazyData: true
-Imports:Seurat, pracma, moments, stats, rootSolve, logr
+Imports: Seurat, pracma, moments, stats, rootSolve, logr
+RoxygenNote: 7.2.3

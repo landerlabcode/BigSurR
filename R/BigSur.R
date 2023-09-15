@@ -18,7 +18,11 @@
 #' statistically significant correlations is returned. If only one process is selected, their respective output is returned alone.
 #' @export
 #'
-#' @examples
+#' @examples BigSur(example.seurat, variable.features=T, correlations=T)
+#'
+#'
+#'
+#'
 BigSur <- function(seurat.obj,
                    assay = "RNA",
                    counts.slot="counts",
