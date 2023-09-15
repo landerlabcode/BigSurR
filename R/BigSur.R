@@ -3,7 +3,7 @@
 #' @param seurat.obj Seurat object containing the raw transcript counts filtered for zero count genes.
 #' @param assay Assay slot containing raw transcript counts (default "RNA").
 #' @param counts.slot Slot within assay containing raw counts matrix (default "counts").
-#' @param c Boolean, double. The coefficient of variation for
+#' @param c Boolean, double. The coefficient of variation of the dataset. If set to false, one will be estimated using the dataset.
 #' @param variable.features Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.
 #' @param correlations Boolean. If true, BigSur will identify statistically significant gene-gene correlations.
 #' @param first.pass.cutoff Integer. Removes roots before p-value calculations if the root is below Abs[Sqrt(2)*InverseErfc(2*10^-first.pass.cutoff)]. The higher the number, the more correlations are removed in initial screening.
