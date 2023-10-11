@@ -13,7 +13,7 @@ devtools::install_github("landerlabcode/BigSurR")
 ```
 
 ## Usage
-To use BigSur, first create a Seurat object containing the raw transcript counts for each gene. As a preprocessing step, ensure that there are no genes which have zero counts across all cells. **Ensure that the active assay is the one containing the raw transcript counts.**
+To use BigSur, first create a Seurat object containing the raw transcript counts for each gene. As a preprocessing step, ensure that there are no genes which have zero counts across all cells.
 ```{r}
 library(BigSur)
 example.seurat <- CreateSeuratObject(data, min.cells=1)
@@ -43,7 +43,7 @@ To change:
 - Assert version specifics for dependencies 
 - Add more assertions to prevent improper use
 - Change import structure to remove warnings from unused function conflicts
-- Change minimum Fano factor from a set number to a quantile-based one.
+- Change minimum Fano factor from a set number to one calculated based on silhouette score.
 - Add example correlation visualization using igraph
 - Add custom igraph functions for visualization to package
 
