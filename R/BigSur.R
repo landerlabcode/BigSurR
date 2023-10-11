@@ -47,7 +47,7 @@ BigSur <- function(seurat.obj,
     log_print("Pipeline started execution.")
   }
 
-  residuals<-get.residuals(seurat.obj, counts.slot, c)
+  residuals<-get.residuals(seurat.obj, assay, counts.slot, c)
 
   c <- residuals$c
 

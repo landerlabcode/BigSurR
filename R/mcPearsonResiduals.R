@@ -1,9 +1,9 @@
-get.residuals <- function(seuratob, counts.slot, c = F){
+get.residuals <- function(seuratob, assay, counts.slot, c = F){
 
   if((c!=F) & (c<=0)){
     stop("c must be greater than zero.")
   }
-
+  DefaultAssay(object = seuratob) <- assay
   raw.counts <- as.matrix(GetAssayData(object=seuratob, slot=counts.slot))
 
   if(!(all(raw.counts==floor(raw.counts)))){
