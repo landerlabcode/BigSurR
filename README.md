@@ -17,7 +17,6 @@ To use BigSur, first create a Seurat object containing the raw transcript counts
 ```{r}
 library(BigSur)
 example.seurat <- CreateSeuratObject(data, min.cells=1)
-DefaultAssay(object = example.seurat) <- "RNA"
 ```
 Pass this object into the BigSur function with the desired parameters. The parameters are as follows:
 - **seurat.obj**: Seurat object containing the raw transcript counts filtered for zero count genes.
