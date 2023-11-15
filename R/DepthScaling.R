@@ -1,3 +1,13 @@
+#' depth.scaling
+#'
+#' @param seuratob Seurat object containing the raw transcript counts filtered for zero count genes. This object must contain all genes sequenced in the initial experiment.
+#' @param assay Assay slot containing raw transcript counts (default "RNA").
+#' @param counts.slot Slot within assay containing raw counts matrix (default "counts").
+#'
+#' @return Numeric vector containing the scaling coefficients for each cell.
+#' @export
+#'
+#' @examples depths <- depth.scaling(example.seurat)
 depth.scaling <- function(seuratob,  assay = "RNA", counts.slot="counts"){
 
   DefaultAssay(object = seuratob) <- assay

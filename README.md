@@ -13,6 +13,8 @@ devtools::install_github("landerlabcode/BigSurR")
 ```
 
 ## Usage
+
+### General
 To use BigSur, first create a Seurat object containing the raw transcript counts for each gene. As a preprocessing step, ensure that there are no genes which have zero counts across all cells.
 ```{r}
 library(BigSur)
@@ -30,6 +32,8 @@ Pass this object into the BigSur function with the desired parameters. The param
 - **fano.alpha**: Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
 - **min.fano**: Double. Minimum mcFano value considered for variable genes.
 - **cor.alpha**: Double. Desired false discovery cutoff for labeling of statistically significant correlations.
+- **depthlist**: Boolean, vector. If a vector is supplied, that vector of values will be used to scale counts to account for unequal sequencing depth across cells. If left as False, this scaling will be calculated during the BigSur run.
+- **return.ps**: Boolean. If true, the Benjamini-Hochberg corrected p-values associated with each equivalent PCC will be returned in a list with the equivalent PCC sparse matrix. The first object in this list will be the equivalent PCCs, the second will be the p-value matrix.
 - **log.file**: Boolean. If true, a log file will be created.
 - **log.file.dir**: String. Path of desired location for log file. *Note: Default string is set to work on Unix based file structures (i.e., manually set this on Windows).
 
@@ -38,6 +42,29 @@ For example, to calculate both the highly variable features and the significant 
 example.output <- BigSur(example.seurat, variable.feature=T, correlations=T)
 ```
 If both variable features and correlations are identified, a list containing the updated Seurat object and the an adjacency matrix of the statistically significant correlations is returned. If only one process is selected, their respective output is returned alone.
+
+### Data Subset Analysis
+
+Using the entire dataset is very memory and computationally expensive. Often times, you may have an idea of which genes you want to test for significant correlations. In these cases, it is necessary to pre-compute the relative depths to which each cell has been sequenced as this calculation is based on all of the genes.
+
+To do this, BigSur has a separate function: depth.scaling. This function will take in the original Seurat object and compute a vector of scaling coefficients for each cell to account for differential sequencing depth. This vector can then be passed to the main BigSur function in the depth.list parameter.
+
+The following is some example code on how you might use this feature to analyze a smaller subset of data.
+
+```{r}
+#Calculate the differential sequencing depths using the original seurat object
+depths <- depth.scaling(example.seurat, assay="RNA", slot = "counts")
+
+#Subset the seurat object to contain only genes of interest
+genes.list <- c("eGFP", "ACTB", ...)
+example.seurat.subset <- subset(example.seurat, genes.list)
+
+#Run BigSur on the subsetted data with the depths vector as a parameter
+
+output <- BigSur(example.seurat.subset, correlations=T, depth.list = depths)
+```
+
+
 
 To change:
 - Assert version specifics for dependencies 
