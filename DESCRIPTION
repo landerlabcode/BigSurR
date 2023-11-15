@@ -4,8 +4,7 @@ Title: BigSur (Basic Informatics and Gene Statistics from Unnormalized Reads)
 Version: 1.0.1
 Author: Kai Silkwood
 Maintainer: Kai Silkwood <ksilkwoo@uci.edu>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: BigSur is a tool for single cell RNA sequencing analysis which interfaces with Seurat objects to both select statistically significant features to use in clustering and identify statistically significant correlations between genes.
 License: MIT License
 Encoding: UTF-8
 LazyData: true
