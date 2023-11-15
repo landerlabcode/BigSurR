@@ -47,7 +47,7 @@ If both variable features and correlations are identified, a list containing the
 
 Using the entire dataset is very memory and computationally expensive. Often times, you may have an idea of which genes you want to test for significant correlations. In these cases, it is necessary to pre-compute the relative depths to which each cell has been sequenced as this calculation is based on all of the genes.
 
-To do this, BigSur has a separate function: depth.scaling. This function will take in the original Seurat object and compute a vector of scaling coefficients for each cell to account for differential sequencing depth. This vector can then be passed to the main BigSur function in the depth.list parameter.
+To do this, BigSur has a separate function: depth.scaling. This function will take in the original Seurat object and compute a vector of scaling coefficients for each cell to account for differential sequencing depth. This vector can then be passed to the main BigSur function in the depthlist parameter.
 
 The following is some example code on how you might use this feature to analyze a smaller subset of data.
 
@@ -61,7 +61,7 @@ example.seurat.subset <- subset(example.seurat, genes.list)
 
 #Run BigSur on the subsetted data with the depths vector as a parameter
 
-output <- BigSur(example.seurat.subset, correlations=T, depth.list = depths)
+output <- BigSur(example.seurat.subset, correlations=T, depthlist = depths)
 ```
 
 
