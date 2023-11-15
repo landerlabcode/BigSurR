@@ -1,4 +1,4 @@
-get.significant.inferred.PCCs <- function(p.matrix, inferred.PCCs, num.genes, alpha){
+get.significant.inferred.PCCs <- function(p.matrix, inferred.PCCs, num.genes, alpha, return.ps){
 
   print("Calculating significance for inferred PCCs.")
   sorted.pvals <- p.matrix[order(p.matrix[,"p.mpfr"], decreasing = T),]
@@ -12,7 +12,9 @@ get.significant.inferred.PCCs <- function(p.matrix, inferred.PCCs, num.genes, al
 
   print("Done.")
 
-  return(sig.PCCs)
+  if(return.ps == T){return(list(sig.PCCs, BH.corrections.mat))}
+  else{return(sig.PCCs)}
+
 }
 
 get.inferred.PCCs <- function(p.matrix, signMat,n, num.genes){

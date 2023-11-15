@@ -1,7 +1,7 @@
 Package: BigSur
 Type: Package
 Title: BigSur (Basic Informatics and Gene Statistics from Unnormalized Reads)
-Version: 1.0.0
+Version: 1.0.1
 Author: Kai Silkwood
 Maintainer: Kai Silkwood <ksilkwoo@uci.edu>
 Description: More about what it does (maybe more than one line)

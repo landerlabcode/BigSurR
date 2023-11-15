@@ -10,7 +10,9 @@
 #' @param inverse.fano.moments Boolean. If true, BigSur will calculate the moments for the inverse Fano factor pairs before performing Cornish Fisher expansion.
 #' @param fano.alpha Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
 #' @param min.fano Double. Minimum mcFano value considered for variable genes.
+#' @param depthlist Boolean, vector. If a vector is supplied, that vector of values will be used to scale counts to account for unequal sequencing depth across cells. If left as False, this scaling will be calculated during the BigSur run.
 #' @param cor.alpha Double. Desired false discovery cutoff for labeling of statistically significant correlations.
+#' @param return.ps Boolean. If true, the Benjamini-Hochberg corrected p-values associated with each equivalent PCC will be returned in a list with the equivalent PCC sparse matrix. The first object in this list will be the equivalent PCCs, the second will be the p-value matrix.
 #' @param log.file Boolean. If true, a log file will be created.
 #' @param log.file.dir String. Path of desired location for log file.
 #'
@@ -34,6 +36,8 @@ BigSur <- function(seurat.obj,
                    fano.alpha = 0.05,
                    min.fano = 1.5,
                    cor.alpha = 0.05,
+                   depthlist = F,
+                   return.ps = F,
                    log.file = T,
                    log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(),".txt")
                    )
@@ -47,11 +51,13 @@ BigSur <- function(seurat.obj,
     log_print("Pipeline started execution.")
   }
 
-  residuals<-get.residuals(seurat.obj, assay, counts.slot, c)
+  residuals<-get.residuals(seurat.obj, assay, counts.slot, c, depthlist)
 
   c <- residuals$c
 
-  num.genes <- length(residuals$gene.totals)
+  #num.genes <- length(residuals$gene.totals)
+
+  num.genes <- residuals$num.genes
 
   if(log.file==T){
     log_print("Modified corrected Pearson residuals calculated.")
@@ -136,13 +142,14 @@ BigSur <- function(seurat.obj,
 
     equivalent.pccs <- get.inferred.PCCs(cor.p, cor.signmat, residuals$num.cells, num.genes)
     if(log.file==T){
-      log_print("Equivalent PCCs calculated in.")
+      log_print("Equivalent PCCs calculated.")
     }
-    sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, cor.alpha)
+    sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, cor.alpha, return.ps)
 
     if(log.file==T){
       log_print("Equivalent PCCs filtered for significance.")
-      log_print(paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs)))
+      if(is.list(sig.equivalent.pccs)==T){log_print(paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs[[1]])))}
+      else{log_print(paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs)))}
     }
   }
 
@@ -160,3 +167,4 @@ BigSur <- function(seurat.obj,
   }
 
 }
+

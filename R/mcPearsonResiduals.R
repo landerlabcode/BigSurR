@@ -1,4 +1,4 @@
-get.residuals <- function(seuratob, assay, counts.slot, c = F){
+get.residuals <- function(seuratob, assay, counts.slot, c = F, depthlist, num.genes){
 
   if((c!=F) & (c<=0)){
     stop("c must be greater than zero.")
@@ -15,13 +15,21 @@ get.residuals <- function(seuratob, assay, counts.slot, c = F){
     stop("Genes with zero counts were found, run quality control steps before attempting further analysis.")
   }
 
-  cell.total.umis <- colSums(raw.counts)
-  all.umis<- sum(cell.total.umis)
-
   num.cells <- ncol(raw.counts)
+
   num.genes <- nrow(raw.counts)
 
-  depthlist <- cell.total.umis/all.umis
+  if(is.vector(depthlist, mode="numeric")==F){
+    print("Pre-computed depthlist was either not supplied or supplied as a non-numeric vector. Calculating depth scaling from scratch.")
+    cell.total.umis <- colSums(raw.counts)
+    all.umis<- sum(cell.total.umis)
+    depthlist <- cell.total.umis/all.umis
+  }
+
+  if(length(depthlist)!=(dim(raw.counts)[2])){
+    stop("Depth list supplied and number of cells in the Seurat object are not equal. Double check you are using the correct objects.")
+  }
+
   ematrix <- gene.totals %o% depthlist
 
   if(c==F){
@@ -30,8 +38,8 @@ get.residuals <- function(seuratob, assay, counts.slot, c = F){
 
   residuals <- (raw.counts-ematrix)/sqrt(ematrix*(1+c^2*ematrix))
 
-  data.list <- list(residuals, ematrix, depthlist, num.cells, gene.totals, c)
-  data.list <- setNames(data.list, c("residuals","ematrix","depthlist","num.cells", "gene.totals", "c"))
+  data.list <- list(residuals, ematrix, depthlist, num.cells, num.genes, gene.totals, c)
+  data.list <- setNames(data.list, c("residuals","ematrix","depthlist","num.cells","num.genes", "gene.totals", "c"))
   return(data.list)
 }
 
