@@ -61,7 +61,7 @@ example.seurat.subset <- subset(example.seurat, genes.list)
 
 #Run BigSur on the subsetted data with the depths vector as a parameter
 
-output <- BigSur(example.seurat.subset, correlations=T, depthlist = depths)
+output <- BigSur(example.seurat.subset, variable.features = F, correlations=T, depthlist = depths)
 ```
 
 
