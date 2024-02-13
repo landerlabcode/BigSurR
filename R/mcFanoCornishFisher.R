@@ -76,6 +76,8 @@ Fano.BH <- function(p.df, num.genes){
 
   ordered$BH.Corrected.Pvalue <- corrected.p
 
+  ordered <- ordered[rownames(p.df),]
+
   return(ordered)
 }
 

@@ -12,6 +12,8 @@ BigSurR can be installed directly from github using the devtools package.
 devtools::install_github("landerlabcode/BigSurR")
 ```
 
+Note, Seurat recently changed the structure of their assay objects. BigSur's feature selection process will no longer work on versions below 5.1.0 (Assay5 class required).
+
 ## Usage
 
 ### General

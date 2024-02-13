@@ -51,6 +51,10 @@ BigSur <- function(seurat.obj,
     log_print("Pipeline started execution.")
   }
 
+  if(packageVersion("Seurat") < "5.0.1"){
+    stop("Older versions of Seurat still utilize 'meta.features' which has been replaced by 'meta.data' in newer versions. Please upgrade to 5.0.1 at minimum.")
+  }
+
   residuals<-get.residuals(seurat.obj, assay, counts.slot, c, depthlist)
 
   c <- residuals$c
@@ -83,10 +87,10 @@ BigSur <- function(seurat.obj,
     fano.selected <- Fano.HighlyVariable(fanoBH, fano.alpha, min.fano)
     top.features <- row.names(fano.selected[fano.selected[,5]==T,])
     new.seurat.obj <- seurat.obj
-    VariableFeatures(object = new.seurat.obj) <- top.features
     feat.metadata <- as.data.frame(fano.selected[,c(1,4,5)])
-    new.seurat.obj[[assay]]@meta.features <- new.seurat.obj[[assay]]@meta.features[match(row.names(feat.metadata), row.names(new.seurat.obj[[assay]]@meta.features)),]
-    new.seurat.obj[[assay]]@meta.features <- cbind(new.seurat.obj[[assay]]@meta.features, feat.metadata)
+    new.seurat.obj[[assay]]@meta.data <- feat.metadata
+    VariableFeatures(new.seurat.obj) <- top.features
+    new.seurat.obj[[assay]]$data <- residuals$residuals
     if(log.file==T){
       log_print("Highly variable features identified.")
     }
