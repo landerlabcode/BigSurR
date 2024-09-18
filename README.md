@@ -79,4 +79,4 @@ To change:
 In progress:
 - Testing installation and code on Windows and Linux systems.
 
-[1]: https://www.biorxiv.org/content/10.1101/2023.03.14.532643v1 "Leveraging gene correlations in single cell transcriptomic data"
+[1]: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-024-05926-z "Leveraging gene correlations in single cell transcriptomic data"
