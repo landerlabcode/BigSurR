@@ -46,36 +46,37 @@ BigSur <- function(seurat.obj,
     stop("Both variable.features and correlations are set to false.")
   }
 
-  if(log.file==T){
-    lf <- log_open(log.file.dir)
-    log_print("Pipeline started execution.")
-  }
-
   if(packageVersion("Seurat") < "5.0.1"){
     stop("Older versions of Seurat still utilize 'meta.features' which has been replaced by 'meta.data' in newer versions. Please upgrade to 5.0.1 at minimum.")
+  }
+  print("Pipeline started execution.")
+  if(log.file==T){
+    fileConn <- file(log.file.dir, open ="wt")
+    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Pipeline started execution."), file=fileConn, append=T)
   }
 
   residuals<-get.residuals(seurat.obj, assay, counts.slot, c, depthlist)
 
   c <- residuals$c
 
-  #num.genes <- length(residuals$gene.totals)
-
   num.genes <- residuals$num.genes
-
+  print("Modified corrected Pearson residuals calculated.")
   if(log.file==T){
-    log_print("Modified corrected Pearson residuals calculated.")
-  }
+    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Modified corrected Pearson residuals calculated."), file=fileConn, append=T)
+    }
   mcfanos <- get.mcFanos(residuals)
 
-
+  print("Modified corrected Fano factors calculated.")
   if(log.file==T){
-    log_print("Modified corrected Fano factors calculated.")
-  }
+    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Modified corrected Fano factors calculated."), file=fileConn, append=T)
+
+    }
+
 
   if(variable.features==T){
+    print("Beginning identification of significant mcFanos.")
     if(log.file==T){
-      log_print("Beginning identification of significant mcFanos.")
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Beginning identification of significant mcFanos."), file=fileConn, append=T)
     }
     fano.cumulants <- Cumulants.Fano(residuals, c)
     fanocoeffs <- CF.Coefficients.Fano(fano.cumulants[,2], fano.cumulants[,3], fano.cumulants[,4], fano.cumulants[,5], mcfanos, rownames(residuals$ematrix))
@@ -91,19 +92,25 @@ BigSur <- function(seurat.obj,
     new.seurat.obj[[assay]]@meta.data <- feat.metadata
     VariableFeatures(new.seurat.obj) <- top.features
     new.seurat.obj[[assay]]$data <- residuals$residuals
+    print("Highly variable features identified.")
     if(log.file==T){
-      log_print("Highly variable features identified.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Highly variable features identified."), file=fileConn, append=T)
+
+      }
   }
 
   if(correlations==T){
     if(log.file==T){
-      log_print("Beginning correlation calculation.")
-    }
+      print("Beginning correlation calculation.")
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Beginning correlation calculation."), file=fileConn, append=T)
+
+       }
     pcc <- get.mcPCC2(residuals, mcfanos)
+    print("Modified-corrected Pearson Correlation Coefficients calculated.")
     if(log.file==T){
-      log_print("Modified-corrected Pearson Correlation Coefficients calculated.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Modified-corrected Pearson Correlation Coefficients calculated."), file=fileConn, append=T)
+
+      }
 
     if(inverse.fano.moments==T){
       inv.correction <- inv.sqrt.correction2(residuals, residuals$c)
@@ -112,9 +119,10 @@ BigSur <- function(seurat.obj,
       h <- max(residuals$gene.totals)
       points <- as.integer(c(a, a*(e/a)^(1/4), a*(e/a)^(1/2), a*(e/a)^(3/4), e, e*(h/e)^(1/3), e*(h/e)^(2/3), h))
       moment.interp <- inv.sqrt.moment.interpolation2(inv.correction, residuals$gene.totals, points)
+      print("Inverse sqrt moments calculated.")
       if(log.file==T){
-        log_print("Inverse sqrt moments calculated.")
-      }
+        write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Inverse sqrt moments calculated."), file=fileConn, append=T)
+        }
     }
 
     else{
@@ -123,40 +131,56 @@ BigSur <- function(seurat.obj,
     }
 
     cor.cumulants <- Cumulants.PCC(residuals, moment.interp)
+    print("PCC cumulants calculated.")
     if(log.file==T){
-      log_print("PCC cumulants calculated.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC cumulants calculated."), file=fileConn, append=T)
+
+      }
 
     cor.coefficients <- CF.Coefficients.PCC(cor.cumulants, pcc)
+    print("PCC Cornish Fisher coefficients calculated.")
     if(log.file==T){
-      log_print("PCC Cornish Fisher coefficients calculated.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC Cornish Fisher coefficients calculated."), file=fileConn, append=T)
+
+       }
 
     cor.roots <- CF.PCC.Roots(cor.coefficients, 2, residuals$gene.totals)
 
     cor.p <- CF.PCC.pval(cor.roots)
+    print("P-values calculated.")
     if(log.file==T){
-      log_print("P-values calculated.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": P-values calculated."), file=fileConn, append=T)
+
+      }
 
     cor.signmat <- get.signMat(pcc)
+    print("Sign matrix calculated.")
     if(log.file==T){
-      log_print("Sign matrix calculated.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Sign matrix calculated."), file=fileConn, append=T)
+
+      }
 
     equivalent.pccs <- get.inferred.PCCs(cor.p, cor.signmat, residuals$num.cells, num.genes)
+    print("Equivalent PCCs calculated.")
     if(log.file==T){
-      log_print("Equivalent PCCs calculated.")
-    }
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Equivalent PCCs calculated."), file=fileConn, append=T)
+
+      }
     sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, cor.alpha, return.ps)
-
-    if(log.file==T){
-      log_print("Equivalent PCCs filtered for significance.")
-      if(is.list(sig.equivalent.pccs)==T){log_print(paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs[[1]])))}
-      else{log_print(paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs)))}
+    if(is.list(sig.equivalent.pccs)==T){print(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs[[1]]))), fileConn)}
+    else{
+      print(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs))),fileConn)
     }
-  }
+    if(log.file==T){
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Equivalent PCCs filtered for significance."), file=fileConn, append=T)
 
+      if(is.list(sig.equivalent.pccs)==T){writeLines(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs[[1]]))), fileConn)}
+      else{
+        write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs))), file=fileConn, append=T)
+
+        }
+  }
+}
 
   if(variable.features==T & correlations==T){
     return(list(new.seurat.obj, sig.equivalent.pccs))}
@@ -166,8 +190,11 @@ BigSur <- function(seurat.obj,
   else{
     return(sig.equivalent.pccs)
   }
+  print("Pipeline complete.")
   if(log.file==T){
-    log_close()
+    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Pipeline complete."), file=fileConn, append=T)
+
+    close(fileConn)
   }
 
 }

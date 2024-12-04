@@ -10,5 +10,5 @@ Description: BigSur is a tool for single cell RNA sequencing analysis which inte
 License: MIT License
 Encoding: UTF-8
 LazyData: true
-Imports: Seurat, pracma, moments, stats, rootSolve, logr, Rmpfr
+Imports: Seurat, pracma, moments, stats, rootSolve, Rmpfr
 RoxygenNote: 7.2.3
