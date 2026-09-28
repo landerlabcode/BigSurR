@@ -3,14 +3,13 @@
 #' @param seurat.obj Seurat object containing the raw transcript counts filtered for zero count genes.
 #' @param assay Assay slot containing raw transcript counts (default "RNA").
 #' @param counts.slot Slot within assay containing raw counts matrix (default "counts").
-#' @param c Boolean, double. The coefficient of variation of the dataset. If set to false, one will be estimated using the dataset.
+#' @param cv.est.method String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: \n1) "Single": Determines a scalar value of c. \n2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. \n3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.
 #' @param variable.features Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.
 #' @param correlations Boolean. If true, BigSur will identify statistically significant gene-gene correlations.
 #' @param first.pass.cutoff Integer. Removes roots before p-value calculations if the root is below Abs[Sqrt(2)*InverseErfc(2*10^-first.pass.cutoff)]. The higher the number, the more correlations are removed in initial screening.
 #' @param inverse.fano.moments Boolean. If true, BigSur will calculate the moments for the inverse Fano factor pairs before performing Cornish Fisher expansion.
 #' @param fano.alpha Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
 #' @param min.fano Double. Minimum mcFano value considered for variable genes.
-#' @param depthlist Boolean, vector. If a vector is supplied, that vector of values will be used to scale counts to account for unequal sequencing depth across cells. If left as False, this scaling will be calculated during the BigSur run.
 #' @param cor.alpha Double. Desired false discovery cutoff for labeling of statistically significant correlations.
 #' @param return.ps Boolean. If true, the Benjamini-Hochberg corrected p-values associated with each equivalent PCC will be returned in a list with the equivalent PCC sparse matrix. The first object in this list will be the equivalent PCCs, the second will be the p-value matrix.
 #' @param log.file Boolean. If true, a log file will be created.
@@ -28,7 +27,7 @@
 BigSur <- function(seurat.obj,
                    assay = "RNA",
                    counts.slot="counts",
-                   c=F,
+                   cv.est.method="MeanSpecific",
                    variable.features=T,
                    correlations=F,
                    first.pass.cutoff=2,
@@ -36,7 +35,6 @@ BigSur <- function(seurat.obj,
                    fano.alpha = 0.05,
                    min.fano = 1.5,
                    cor.alpha = 0.05,
-                   depthlist = F,
                    return.ps = F,
                    log.file = T,
                    log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(),".txt")
@@ -55,7 +53,7 @@ BigSur <- function(seurat.obj,
     write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Pipeline started execution."), file=fileConn, append=T)
   }
 
-  residuals<-get.residuals(seurat.obj, assay, counts.slot, c, depthlist)
+  residuals<-get.residuals(seurat.obj, assay, counts.slot, two_component)
 
   c <- residuals$c
 
@@ -113,12 +111,8 @@ BigSur <- function(seurat.obj,
       }
 
     if(inverse.fano.moments==T){
-      inv.correction <- inv.sqrt.correction2(residuals, residuals$c)
-      a <- max(2, min(residuals$gene.totals))
-      e <- residuals$num.cells/50
-      h <- max(residuals$gene.totals)
-      points <- as.integer(c(a, a*(e/a)^(1/4), a*(e/a)^(1/2), a*(e/a)^(3/4), e, e*(h/e)^(1/3), e*(h/e)^(2/3), h))
-      moment.interp <- inv.sqrt.moment.interpolation2(inv.correction, residuals$gene.totals, points)
+      inv.correction <- inv.sqrt.correction2(residuals, residuals$eta, residuals$theta)
+      moment.interp <- inv.sqrt.moment.interpolation2(inv.correction, residuals$gene.totals)
       print("Inverse sqrt moments calculated.")
       if(log.file==T){
         write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Inverse sqrt moments calculated."), file=fileConn, append=T)

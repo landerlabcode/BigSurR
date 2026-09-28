@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+.claude
+tests/mathematica/**/*.csv
+tests/mathematica/**/*.mx
+tests/mathematica/**/*.mtx
