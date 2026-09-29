@@ -11,7 +11,6 @@
 #' @param fano.alpha Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
 #' @param min.fano Double. Minimum mcFano value considered for variable genes.
 #' @param cor.alpha Double. Desired false discovery cutoff for labeling of statistically significant correlations.
-#' @param return.ps Boolean. If true, the Benjamini-Hochberg corrected p-values associated with each equivalent PCC will be returned in a list with the equivalent PCC sparse matrix. The first object in this list will be the equivalent PCCs, the second will be the p-value matrix.
 #' @param log.file Boolean. If true, a log file will be created.
 #' @param log.file.dir String. Path of desired location for log file.
 #'
@@ -35,7 +34,7 @@ BigSur <- function(seurat.obj,
                    fano.alpha = 0.05,
                    min.fano = 1.5,
                    cor.alpha = 0.05,
-                   return.ps = F,
+                   return.ps = T,
                    log.file = T,
                    log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(),".txt")
                    )
@@ -47,14 +46,19 @@ BigSur <- function(seurat.obj,
   if(packageVersion("Seurat") < "5.0.1"){
     stop("Older versions of Seurat still utilize 'meta.features' which has been replaced by 'meta.data' in newer versions. Please upgrade to 5.0.1 at minimum.")
   }
-  print("Pipeline started execution.")
-  if(log.file==T){
-    fileConn <- file(log.file.dir, open ="wt")
-    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Pipeline started execution."), file=fileConn, append=T)
+
+  if (log.file) {
+    fileConn <- file(log.file.dir, open = "at")
+    on.exit(close(fileConn), add = TRUE)
+    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Pipeline started execution."),
+          file = fileConn)
   }
 
-  residuals<-get.residuals(seurat.obj, assay, counts.slot, two_component)
-
+  residuals<-get.residuals(seurat.obj, assay, counts.slot, cv.est.method)
+  new.seurat.obj <- seurat.obj
+  new.seurat.obj[[assay]]$data <- residuals$residuals
+  Misc(new.seurat.obj, slot="BigSur.Eta")<-residuals$eta
+  Misc(new.seurat.obj, slot="BigSur.Theta")<-residuals$theta
   c <- residuals$c
 
   num.genes <- residuals$num.genes
@@ -67,7 +71,6 @@ BigSur <- function(seurat.obj,
   print("Modified corrected Fano factors calculated.")
   if(log.file==T){
     write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Modified corrected Fano factors calculated."), file=fileConn, append=T)
-
     }
 
 
@@ -85,11 +88,10 @@ BigSur <- function(seurat.obj,
     fanoBH <- Fano.BH(p.df, num.genes)
     fano.selected <- Fano.HighlyVariable(fanoBH, fano.alpha, min.fano)
     top.features <- row.names(fano.selected[fano.selected[,5]==T,])
-    new.seurat.obj <- seurat.obj
     feat.metadata <- as.data.frame(fano.selected[,c(1,4,5)])
     new.seurat.obj[[assay]]@meta.data <- feat.metadata
     VariableFeatures(new.seurat.obj) <- top.features
-    new.seurat.obj[[assay]]$data <- residuals$residuals
+
     print("Highly variable features identified.")
     if(log.file==T){
       write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Highly variable features identified."), file=fileConn, append=T)
@@ -124,21 +126,27 @@ BigSur <- function(seurat.obj,
       moment.interp <- list(onesmat, onesmat, onesmat, onesmat)
     }
 
-    cor.cumulants <- Cumulants.PCC(residuals, moment.interp)
-    print("PCC cumulants calculated.")
+    #cor.cumulants <- Cumulants.PCC(residuals, moment.interp)
+    #print("PCC cumulants calculated.")
+    #if(log.file==T){
+    # write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC cumulants calculated."), file=fileConn, append=T)
+
+    # }
+
+    #cor.coefficients <- CF.Coefficients.PCC(cor.cumulants, pcc)
+    #print("PCC Cornish Fisher coefficients calculated.")
+   # if(log.file==T){
+    #  write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC Cornish Fisher coefficients calculated."), file=fileConn, append=T)
+    #
+     #  }
+
+    cor.coefficients <-  CF.PCC.blocked(residuals, moment.interp, pcc, first.pass.cutoff)
+    print("Correlation cumulants calculated.")
     if(log.file==T){
-      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC cumulants calculated."), file=fileConn, append=T)
+    write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Correlation cumulants calculated."), file=fileConn, append=T)
+    }
 
-      }
-
-    cor.coefficients <- CF.Coefficients.PCC(cor.cumulants, pcc)
-    print("PCC Cornish Fisher coefficients calculated.")
-    if(log.file==T){
-      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC Cornish Fisher coefficients calculated."), file=fileConn, append=T)
-
-       }
-
-    cor.roots <- CF.PCC.Roots(cor.coefficients, 2, residuals$gene.totals)
+    cor.roots <- CF.PCC.Roots2(cor.coefficients, first.pass.cutoff)
 
     cor.p <- CF.PCC.pval(cor.roots)
     print("P-values calculated.")
@@ -154,42 +162,22 @@ BigSur <- function(seurat.obj,
 
       }
 
-    equivalent.pccs <- get.inferred.PCCs(cor.p, cor.signmat, residuals$num.cells, num.genes)
-    print("Equivalent PCCs calculated.")
+    sig.pccs <- get.significant.PCCs(pcc, cor.p, num.genes, cor.alpha)
+    print(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.pccs[[1]])/2)))
     if(log.file==T){
-      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Equivalent PCCs calculated."), file=fileConn, append=T)
+      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": modified-corrected PCCs filtered for significance."), file=fileConn, append=T)
+      writeLines(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.pccs[[1]])/2)), fileConn)
 
-      }
-    sig.equivalent.pccs <- get.significant.inferred.PCCs(cor.p, equivalent.pccs, num.genes, cor.alpha, return.ps)
-    if(is.list(sig.equivalent.pccs)==T){print(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs[[1]]))), fileConn)}
-    else{
-      print(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs))),fileConn)
     }
-    if(log.file==T){
-      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Equivalent PCCs filtered for significance."), file=fileConn, append=T)
-
-      if(is.list(sig.equivalent.pccs)==T){writeLines(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs[[1]]))), fileConn)}
-      else{
-        write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.equivalent.pccs))), file=fileConn, append=T)
-
-        }
-  }
+    Misc(new.seurat.obj, slot="BigSur.Correlations") <- sig.pccs$pccs
+    Misc(new.seurat.obj, slot="BigSur.log.adj.pvalues") <- sig.pccs$logp
+    Misc(new.seurat.obj, slot="BigSur.orig.alpha") <- sig.pccs$alpha
 }
 
-  if(variable.features==T & correlations==T){
-    return(list(new.seurat.obj, sig.equivalent.pccs))}
-  else if(variable.features==T){
-    return(new.seurat.obj)
-  }
-  else{
-    return(sig.equivalent.pccs)
-  }
   print("Pipeline complete.")
   if(log.file==T){
     write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Pipeline complete."), file=fileConn, append=T)
-
-    close(fileConn)
   }
-
+  return(new.seurat.obj)
 }
 

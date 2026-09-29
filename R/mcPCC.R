@@ -1,7 +1,7 @@
 get.mcPCC2 <- function(residuals.list, mcFanos){
   corrections <- as.matrix(correction.PCC(residuals.list, mcFanos))
   mcPCCs <- tcrossprod(corrections)
-
+  rownames(mcPCCs)<-rownames(residuals.list$residuals)
   return(mcPCCs)
 }
 

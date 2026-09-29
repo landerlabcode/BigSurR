@@ -7,3 +7,6 @@
 tests/mathematica/**/*.csv
 tests/mathematica/**/*.mx
 tests/mathematica/**/*.mtx
+tests/testthat/fixtures/*.csv
+tests/testthat/fixtures/*.mtx
+tests/testthat/fixtures/*.rds

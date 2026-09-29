@@ -11,6 +11,7 @@ inv.sqrt.moment.interpolation2 <- function(correction, gene.totals) {
   })
 
   e.moments <- lapply(int.moments, function(v) v %o% v)
+  attr(e.moments, "vectors") <- int.moments
   e.moments
 }
 
@@ -28,8 +29,8 @@ InverseSqrtFanoMoments2 <- function(elist, c, n, trials) {
     pois.samples <- rpois(n, rate)
     samples[i] <- 1/sqrt(sum((pois.samples - x)^2/(x + c^2*x^2))/(n - 1))
   }
-    results <- all.moments(samples, order.max = 4)
-    results <- results[2:5]
+    results <- all.moments(samples, order.max = 5)
+    results <- results[3:6]
     return(results)
   }
 
@@ -44,9 +45,10 @@ inv.sqrt.correction2 <- function(residuals.list, eta, theta){
 
   simemat <- outer(points, residuals.list$depthlist)
 
-  c <- sqrt((1+eta)/(points/n)+theta)
+  c <- sqrt(eta * n / points + theta)
 
-  trials <- as.integer(4E7/(n*(log10(points)^(1/5)+0.5*log10(points)^3)))
+  #trials <- as.integer(4E7/(n*(log10(points)^(1/5)+0.5*log10(points)^3)))
+  trials <- round(4e7/(n*(log10(points)^(1/5) + 0.5*log10(points)^3)))
 
   moments <- vector("list", length(points))
 

@@ -1,8 +1,8 @@
-Cumulants.PCC <- function(residuals.list, inv.sqrt.moments){
+Cumulants.PCC <- function(residuals, inv.sqrt.moments){
 
-  n <- residuals.list$num.cells
-  m <- residuals.list$ematrix
-  c <- residuals.list$c
+  n <- residuals$num.cells
+  m <- residuals$ematrix
+  c <- residuals$c
 
   options(matprod="default")
 
@@ -13,20 +13,20 @@ Cumulants.PCC <- function(residuals.list, inv.sqrt.moments){
 
   k3.matrix <- (1+c^2*m*(3+c^2*(3+c^2)*m))/(sqrt(m)*(1+c^2*m)^(3/2))
   k4.matrix <- (1+m*(3+c^2*(7+m*(6+3*c^2*(6+m)+c^4*(6+(16+15*c^2+6*c^4+c^6)*m)))))/(m*(1+c^2*m)^2)
-  k5.matrix.1 <- (1+c^2 * m * (3+c^2*(3+c^2)*m))/(sqrt(m)*(1+c^2*m)^(3/2))
+  #k5.matrix.1 <- (1+c^2 * m * (3+c^2*(3+c^2)*m))/(sqrt(m)*(1+c^2*m)^(3/2))
   k5.matrix.2 <- 1/(m^(3/2)*(1+c^2*m)^(5/2)) * (1 + 5*(2+3*c^2)*m + 5*c^2*(8+15*c^2+5*c^4)*m^2
                                                 +10*c^4*(6+17*c^2+15*c^4+6*c^6+c^8)*m^3+
                                                   c^6*(30+135*c^2+222*c^4+205*c^6+120*c^8+45*c^10+10*c^12+c^14)*m^4)
   k3.crossprod <- tcrossprod(k3.matrix)
   k4.crossprod <-  tcrossprod(k4.matrix)
-  k5.crossprod.1 <- tcrossprod(k5.matrix.1)
+  #k5.crossprod.1 <- tcrossprod(k5.matrix.1)
   k5.crossprod.2  <- tcrossprod(k5.matrix.2)
 
 
   kappa2 <- 1/(n-1)^2 * f2 * n
   kappa3 <- 1/(n-1)^3 * f3 * k3.crossprod
   kappa4 <- 1/(n-1)^4 * (-3*n*f2^2 + f4 * k4.crossprod)
-  kappa5 <- 1/(n-1)^5 * (-10 * f2 * f3 * k5.crossprod.1 + f5 * k5.crossprod.2)
+  kappa5 <- 1/(n-1)^5 * (-10 * f2 * f3 * k3.crossprod + f5 * k5.crossprod.2)
 
 
   k.list <- list(kappa2, kappa3, kappa4, kappa5)
@@ -35,35 +35,21 @@ Cumulants.PCC <- function(residuals.list, inv.sqrt.moments){
 }
 
 
-CF.Coefficients.PCC <- function(k.list, mcPCCs){
+CF.Coefficients.PCC <- function(k.list, mcPCCs) {
+  G  <- nrow(k.list[[1]])
+  lt <- lower.tri(k.list[[1]])
 
-  k2 <- k.list[[1]]
-  k3 <- k.list[[2]]
-  k4 <- k.list[[3]]
-  k5 <- k.list[[4]]
+  k2 <- k.list[[1]][lt]; k3 <- k.list[[2]][lt]
+  k4 <- k.list[[3]][lt]; k5 <- k.list[[4]][lt]
 
-  c1 <- -mcPCCs-k3/(6*k2)+17*k3^3/(324*k2^4)-k3*k4/(12*k2^3)+k5/(40*k2^2)
-  c2 <- sqrt(k2)+5*k3^2/(36*k2^(5/2))-k4/(8*k2^(3/2))
-  c3 <- k3/(6*k2)-53*k3^3/(324*k2^4)+5*k3*k4/(24*k2^3)-k5/(20*k2^2)
-  c4 <- -k3^2/(18*k2^(5/2))+k4/(24*k2^(3/2))
-  c5 <- k3^3/(27*k2^4)-k3*k4/(24*k2^3)+k5/(120*k2^2)
+  c1 <- -mcPCCs[lt] - k3/(6*k2) + 17*k3^3/(324*k2^4) - k3*k4/(12*k2^3) + k5/(40*k2^2)
+  c2 <- sqrt(k2) + 5*k3^2/(36*k2^(5/2)) - k4/(8*k2^(3/2))
+  c3 <- k3/(6*k2) - 53*k3^3/(324*k2^4) + 5*k3*k4/(24*k2^3) - k5/(20*k2^2)
+  c4 <- -k3^2/(18*k2^(5/2)) + k4/(24*k2^(3/2))
+  c5 <- k3^3/(27*k2^4) - k3*k4/(24*k2^3) + k5/(120*k2^2)
 
-  clist <- list(c1,c2,c3,c4,c5)
-
-  mcPCCs.length <-nrow(clist[[1]])
-  z <- sequence(mcPCCs.length)
-
-  row <- unlist(lapply(2:mcPCCs.length, function(x) x:mcPCCs.length), use.names = FALSE)
-  col <- rep(z[-length(z)], times = rev(tail(z, -1))-1)
-  c1 <-  c(clist[[1]][lower.tri(clist[[1]])])
-  c2 <- c(clist[[2]][lower.tri(clist[[2]])])
-  c3 <- c(clist[[3]][lower.tri(clist[[3]])])
-  c4 <- c(clist[[4]][lower.tri(clist[[4]])])
-  c5 <- c(clist[[5]][lower.tri(clist[[5]])])
-
-  cmatrix <-cbind(row, col, c1, c2, c3, c4, c5)
-
-  return(cmatrix)
+  ij <- which(lt, arr.ind = TRUE)
+  cbind(row = ij[, 1], col = ij[, 2], c1, c2, c3, c4, c5)
 }
 
 
@@ -141,6 +127,34 @@ SecondTestCF <- function(cmatrix.more.testing, first.pass.cutoff){
   return(cmatrix.passed)
 }
 
+CF.PCC.Roots2 <- function(cmatrix, first.pass.cutoff) {
+  p.at <- function(k, x) k[,1] + k[,2]*x + k[,3]*x^2 + k[,4]*x^3 + k[,5]*x^4
+
+  cf <- cmatrix[, 3:7, drop = FALSE]
+
+  roots <- vapply(seq_len(nrow(cf)), function(i) cf.root.first.crossing(cf[i, ]), numeric(1))
+
+  found <- !is.na(roots)
+
+  # pairs with no crossing: fall back to the stationary point of the quartic,
+  # i.e. the smallest real root of its derivative
+  if (any(!found)) {
+    d <- cbind(cf[!found, 2], 2*cf[!found, 3], 3*cf[!found, 4], 4*cf[!found, 5])
+    roots[!found] <- vapply(seq_len(nrow(d)), function(i) {
+      r <- polyroot(d[i, ])
+      r <- Re(r[abs(Im(r)) < 1e-5])
+      if (length(r) == 0) NA_real_ else r[which.min(abs(r))]
+    }, numeric(1))
+  }
+
+  cbind(cmatrix[, 1:2, drop = FALSE], root = roots)
+}
+
+cf.root.first.crossing <- function(k) {
+  r <- polyroot(k); r <- Re(r[abs(Im(r)) < 1e-5])
+  r <- r[sign(r) == -sign(k[1])]
+  if (length(r)) r[which.min(abs(r))] else NA_real_
+}
 
 CF.PCC.Roots <- function(cmatrix, first.pass.cutoff, gene.totals){
   print("Beginning root finding process for Cornish Fisher.")
@@ -205,25 +219,65 @@ CF.PCC.Roots <- function(cmatrix, first.pass.cutoff, gene.totals){
   return(roots.matrix)
 }
 
-CF.PCC.pval <- function(roots.matrix){
-  print("Estimating p-values.")
+CF.PCC.blocked <- function(residuals, inv.sqrt.moments, mcPCC,
+                           first.pass.cutoff, block = 500, npts = 9) {
+  n <- residuals$num.cells
+  G <- nrow(residuals$ematrix)
+  cut <- sqrt(2) * erfcinv(2 * 10^-first.pass.cutoff)
 
-  p<- pnorm(abs(roots.matrix[,3]), log.p=T)
-  p.matrix <- cbind(roots.matrix, p)
+  xs  <- seq(-cut, cut, length.out = npts)
+  tab <- t(outer(xs, 0:4, "^"))          # 5 x npts, built once
 
-  p.mpfr <- apply(p.matrix,
-                  1,
-                  function(x){
-                    ifelse(abs(x[3]) < 8.2,
-                           -log10(1-exp(x[4])),
-                            ifelse(abs(x[3]) >= 38.4,
-                                   as.double(-log10((0.5 * exp(mpfr(-(x[3]^2) / 2, precBits=128))))),
-                                   -log10(-x[4]/log(10)))
-                            )
-                  })
+  m <- residuals$ematrix; cc <- residuals$c
+  K3  <- (1+cc^2*m*(3+cc^2*(3+cc^2)*m))/(sqrt(m)*(1+cc^2*m)^(3/2))
+  K4  <- (1+m*(3+cc^2*(7+m*(6+3*cc^2*(6+m)+cc^4*(6+(16+15*cc^2+6*cc^4+cc^6)*m)))))/(m*(1+cc^2*m)^2)
+  K52 <- 1/(m^(3/2)*(1+cc^2*m)^(5/2)) * (1 + 5*(2+3*cc^2)*m + 5*cc^2*(8+15*cc^2+5*cc^4)*m^2 +
+                                           10*cc^4*(6+17*cc^2+15*cc^4+6*cc^6+cc^8)*m^3 +
+                                           cc^6*(30+135*cc^2+222*cc^4+205*cc^6+120*cc^8+45*cc^10+10*cc^12+cc^14)*m^4)
+  v <- attr(inv.sqrt.moments, "vectors")
+  f2 <- v[[1]]; f3 <- v[[2]]
+  f4 <- v[[3]]; f5 <- v[[4]]
 
-  p.matrix <- cbind(p.matrix, p.mpfr)
+  out <- vector("list", ceiling(G / block))
 
-  print("P-value estimation complete.")
-  return(p.matrix)
+  for (b in seq_along(out)) {
+    I <- ((b-1)*block + 1):min(b*block, G)
+
+    g3  <- tcrossprod(K3[I, , drop = FALSE], K3)
+    g4  <- tcrossprod(K4[I, , drop = FALSE], K4)
+    g52 <- tcrossprod(K52[I, , drop = FALSE], K52)
+
+    F2 <- outer(f2[I], f2); F3 <- outer(f3[I], f3)
+    F4 <- outer(f4[I], f4); F5 <- outer(f5[I], f5)
+
+    k2 <- F2 * n / (n-1)^2
+    k3 <- F3 * g3 / (n-1)^3
+    k4 <- (-3*n*F2^2 + F4*g4) / (n-1)^4
+    k5 <- (-10*F2*F3*g3 + F5*g52) / (n-1)^5
+
+    keep <- which(outer(I, 1:G, ">"))
+    k2 <- k2[keep]; k3 <- k3[keep]; k4 <- k4[keep]; k5 <- k5[keep]
+    pcc <- mcPCC[I, , drop = FALSE][keep]
+
+    cf <- cbind(
+      -pcc - k3/(6*k2) + 17*k3^3/(324*k2^4) - k3*k4/(12*k2^3) + k5/(40*k2^2),
+      sqrt(k2) + 5*k3^2/(36*k2^(5/2)) - k4/(8*k2^(3/2)),
+      k3/(6*k2) - 53*k3^3/(324*k2^4) + 5*k3*k4/(24*k2^3) - k5/(20*k2^2),
+      -k3^2/(18*k2^(5/2)) + k4/(24*k2^(3/2)),
+      k3^3/(27*k2^4) - k3*k4/(24*k2^3) + k5/(120*k2^2))
+
+    surv <- which(abs(rowSums(sign(cf %*% tab))) == npts)
+
+    if (length(surv)) {
+      ij <- arrayInd(keep[surv], c(length(I), G))
+      out[[b]] <- cbind(row = I[ij[,1]], col = ij[,2], cf[surv, , drop = FALSE])
+    }
+  }
+  do.call(rbind, out)
+}
+
+CF.PCC.pval <- function(roots.matrix) {
+  z <- roots.matrix[, 3]
+  logp <- pnorm(-abs(z), log.p = TRUE) + log(2)
+  cbind(roots.matrix, logp = logp, direction = sign(z))
 }
