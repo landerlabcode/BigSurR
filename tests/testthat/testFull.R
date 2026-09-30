@@ -93,3 +93,25 @@ cond <- sorted <= log(0.02) + log(seq_len(n)) - log(choose(residuals$num.genes, 
 c(raw_cutoff_R = if (any(cond)) sorted[max(which(cond))] else -Inf,
   raw_cutoff_M = -10.3757,
   n_passing_R  = if (any(cond)) max(which(cond)) else 0)
+
+
+#Test negative binomial version
+outObjNB <- BigSur(testSObj, correlations=T, cor.alpha=0.02, null.distribution="NB", log.file = F)
+outObjPLN <- BigSur(testSObj, correlations=T, cor.alpha=0.02, null.distribution="PLN", log.file = F)
+
+pair.keys <- function(sig) {
+  ij <- which(as.matrix(sig != 0), arr.ind = TRUE)   # or summary(sig) for large sparse matrices
+  ij <- ij[ij[,1] < ij[,2], , drop = FALSE]          # upper triangle only
+  g <- rownames(sig)
+  paste(g[ij[,1]], g[ij[,2]], sep = "|")
+}
+
+pln <- pair.keys(outObjNB@misc$BigSur.log.adj.pvalues); nb <- pair.keys(outObjPLN@misc$BigSur.log.adj.pvalues)
+
+both    <- intersect(pln, nb)
+pln.only <- setdiff(pln, nb)
+nb.only  <- setdiff(nb, pln)
+
+c(PLN = length(pln), NB = length(nb), shared = length(both),
+  PLN.only = length(pln.only), NB.only = length(nb.only),
+  jaccard = length(both) / length(union(pln, nb)))

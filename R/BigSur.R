@@ -3,7 +3,8 @@
 #' @param seurat.obj Seurat object containing the raw transcript counts filtered for zero count genes.
 #' @param assay Assay slot containing raw transcript counts (default "RNA").
 #' @param counts.slot Slot within assay containing raw counts matrix (default "counts").
-#' @param cv.est.method String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: \n1) "Single": Determines a scalar value of c. \n2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. \n3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.
+#' @param cv.est.method String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: 1) "Single": Determines a scalar value of c. 2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. 3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.
+#' @param null.distribution String. Sets the null distribution from which to estimate p-values for Fano factors and correlations. "NB": Negative binomial, "PLN": Poisson log-normal.
 #' @param variable.features Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.
 #' @param correlations Boolean. If true, BigSur will identify statistically significant gene-gene correlations.
 #' @param first.pass.cutoff Integer. Removes roots before p-value calculations if the root is below Abs[Sqrt(2)*InverseErfc(2*10^-first.pass.cutoff)]. The higher the number, the more correlations are removed in initial screening.
@@ -18,7 +19,10 @@
 #' statistically significant correlations is returned. If only one process is selected, their respective output is returned alone.
 #' @export
 #'
-#' @examples BigSur(example.seurat, variable.features=T, correlations=T)
+#' @examples
+#' \dontrun{
+#' out <- BigSur(example.seurat, variable.features = TRUE, correlations = TRUE)
+#' }
 #'
 #'
 #'
@@ -27,6 +31,7 @@ BigSur <- function(seurat.obj,
                    assay = "RNA",
                    counts.slot="counts",
                    cv.est.method="MeanSpecific",
+                   null.distribution="NB",
                    variable.features=T,
                    correlations=F,
                    first.pass.cutoff=2,
@@ -35,7 +40,7 @@ BigSur <- function(seurat.obj,
                    min.fano = 1.5,
                    cor.alpha = 0.05,
                    return.ps = T,
-                   log.file = T,
+                   log.file = F,
                    log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(),".txt")
                    )
   {
@@ -45,6 +50,10 @@ BigSur <- function(seurat.obj,
 
   if(packageVersion("Seurat") < "5.0.1"){
     stop("Older versions of Seurat still utilize 'meta.features' which has been replaced by 'meta.data' in newer versions. Please upgrade to 5.0.1 at minimum.")
+  }
+
+  if(!null.distribution %in% c("NB", "PLN")){
+    stop("Invalid null.distribution string provided.")
   }
 
   if (log.file) {
@@ -79,8 +88,8 @@ BigSur <- function(seurat.obj,
     if(log.file==T){
       write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Beginning identification of significant mcFanos."), file=fileConn, append=T)
     }
-    fano.cumulants <- Cumulants.Fano(residuals, c)
-    fanocoeffs <- CF.Coefficients.Fano(fano.cumulants[,2], fano.cumulants[,3], fano.cumulants[,4], fano.cumulants[,5], mcfanos, rownames(residuals$ematrix))
+    fano.cumulants <- Cumulants.Fano(residuals, c, null.distribution)
+    fanocoeffs <- CF.Coefficients.Fano(fano.cumulants[,1],fano.cumulants[,2], fano.cumulants[,3], fano.cumulants[,4], fano.cumulants[,5], mcfanos, rownames(residuals$ematrix))
     fanoroots <- CF.AllRoots(fanocoeffs)
     pval <- CF.pval(fanoroots)
     p.df <- data.frame(mcfanos, pval)
@@ -113,7 +122,7 @@ BigSur <- function(seurat.obj,
       }
 
     if(inverse.fano.moments==T){
-      inv.correction <- inv.sqrt.correction2(residuals, residuals$eta, residuals$theta)
+      inv.correction <- inv.sqrt.correction2(residuals, residuals$eta, residuals$theta, null.distribution)
       moment.interp <- inv.sqrt.moment.interpolation2(inv.correction, residuals$gene.totals)
       print("Inverse sqrt moments calculated.")
       if(log.file==T){
@@ -126,21 +135,7 @@ BigSur <- function(seurat.obj,
       moment.interp <- list(onesmat, onesmat, onesmat, onesmat)
     }
 
-    #cor.cumulants <- Cumulants.PCC(residuals, moment.interp)
-    #print("PCC cumulants calculated.")
-    #if(log.file==T){
-    # write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC cumulants calculated."), file=fileConn, append=T)
-
-    # }
-
-    #cor.coefficients <- CF.Coefficients.PCC(cor.cumulants, pcc)
-    #print("PCC Cornish Fisher coefficients calculated.")
-   # if(log.file==T){
-    #  write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": PCC Cornish Fisher coefficients calculated."), file=fileConn, append=T)
-    #
-     #  }
-
-    cor.coefficients <-  CF.PCC.blocked(residuals, moment.interp, pcc, first.pass.cutoff)
+    cor.coefficients <-  CF.PCC.blocked(residuals, moment.interp, pcc, first.pass.cutoff, null.dist=null.distribution)
     print("Correlation cumulants calculated.")
     if(log.file==T){
     write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Correlation cumulants calculated."), file=fileConn, append=T)

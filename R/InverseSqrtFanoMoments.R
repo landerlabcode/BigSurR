@@ -16,25 +16,34 @@ inv.sqrt.moment.interpolation2 <- function(correction, gene.totals) {
 }
 
 
-InverseSqrtFanoMoments2 <- function(elist, c, n, trials) {
-
+InverseSqrtFanoMoments2 <- function(elist, c, n, trials,  null.dist = c("PLN", "NB")) {
+  null.dist<- match.arg(null.dist)
   samples <- rep(0, trials)
   x <- elist
+
+ if(null.dist=="PLN"){
   mu <- log(x / sqrt(1 + c^2))
   sigma <- sqrt(log(1 + c^2))
 
-
   for (i in 1:trials) {
+
     rate <- rlnorm(n, meanlog = mu, sdlog = sigma)
     pois.samples <- rpois(n, rate)
     samples[i] <- 1/sqrt(sum((pois.samples - x)^2/(x + c^2*x^2))/(n - 1))
-  }
+  }}
+  else{
+    # null.dist == "NB"
+    for(i in 1:trials){
+     nb.samples <- rnbinom(n, size= 1/c^2, prob=1/(1+c^2*x))
+     samples[i] <- 1/sqrt(sum((nb.samples - x)^2/(x+c^2*x^2))/(n - 1))
+    }
+   }
     results <- all.moments(samples, order.max = 5)
     results <- results[3:6]
     return(results)
   }
 
-inv.sqrt.correction2 <- function(residuals.list, eta, theta){
+inv.sqrt.correction2 <- function(residuals.list, eta, theta, null.dist){
 
   n <- residuals.list$num.cells
   if (n < 100) {
@@ -53,7 +62,7 @@ inv.sqrt.correction2 <- function(residuals.list, eta, theta){
   moments <- vector("list", length(points))
 
   for (i in seq_along(points)) {
-    moments[[i]] <- InverseSqrtFanoMoments2(simemat[i, ], c[i], n, trials[i])
+    moments[[i]] <- InverseSqrtFanoMoments2(simemat[i, ], c[i], n, trials[i], null.dist)
   }
 
   return(list(moments = moments, points = points, trials = trials))

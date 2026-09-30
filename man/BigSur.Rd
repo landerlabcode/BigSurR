@@ -8,7 +8,8 @@ BigSur(
   seurat.obj,
   assay = "RNA",
   counts.slot = "counts",
-  c = F,
+  cv.est.method = "MeanSpecific",
+  null.distribution = "NB",
   variable.features = T,
   correlations = F,
   first.pass.cutoff = 2,
@@ -16,6 +17,7 @@ BigSur(
   fano.alpha = 0.05,
   min.fano = 1.5,
   cor.alpha = 0.05,
+  return.ps = T,
   log.file = T,
   log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(), ".txt")
 )
@@ -27,7 +29,9 @@ BigSur(
 
 \item{counts.slot}{Slot within assay containing raw counts matrix (default "counts").}
 
-\item{c}{Boolean, double. The coefficient of variation of the dataset. If set to false, one will be estimated using the dataset.}
+\item{cv.est.method}{String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: \n1) "Single": Determines a scalar value of c. \n2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. \n3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.}
+
+\item{null.distribution}{String. Sets the null distribution from which to estimate p-values for Fano factors and correlations. "NB": Negative binomial, "PLN": Poisson log-normal.}
 
 \item{variable.features}{Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.}
 
@@ -55,7 +59,9 @@ statistically significant correlations is returned. If only one process is selec
 BigSur (Basic Informatics and Gene Statistics from Unnormalized Reads)
 }
 \examples{
-BigSur(example.seurat, variable.features=T, correlations=T)
+\dontrun{
+out <- BigSur(example.seurat, variable.features = TRUE, correlations = TRUE)
+}
 
 
 
