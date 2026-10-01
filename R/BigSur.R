@@ -12,6 +12,7 @@
 #' @param fano.alpha Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
 #' @param min.fano Double. Minimum mcFano value considered for variable genes.
 #' @param cor.alpha Double. Desired false discovery cutoff for labeling of statistically significant correlations.
+#' @param block.size Integer. Determines the block size for correlation cumulant calculation to relieve memory pressure at the cost of some speed. Number indicates the number of gene pairs evaluated at a time. (Default 500)
 #' @param log.file Boolean. If true, a log file will be created.
 #' @param log.file.dir String. Path of desired location for log file.
 #'
@@ -39,7 +40,7 @@ BigSur <- function(seurat.obj,
                    fano.alpha = 0.05,
                    min.fano = 1.5,
                    cor.alpha = 0.05,
-                   return.ps = T,
+                   block.size = 500,
                    log.file = F,
                    log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(),".txt")
                    )
