@@ -58,5 +58,8 @@ Regardless of parameters:
 - Optimizes memory efficiency by minimizing the number of large matrices being stored in intermediate steps.
 - Outputs are now completely integrated into the Seurat object.
 
+## Future updates
+- Estimating the null inverse square root Fano factor moments is a stochastic process leading to small differences in the number of significant correlations in each run. We would like to minimize this.
+
 [1]: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-024-05926-z "Leveraging gene correlations in single cell transcriptomic data"
 [2]: https://link.springer.com/article/10.1186/s12859-025-06240-y "Statistically principled feature selection for single cell transcriptomics"

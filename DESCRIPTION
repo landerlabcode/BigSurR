@@ -10,7 +10,7 @@ Description: BigSur is a tool for single cell RNA sequencing analysis which inte
 License: MIT License
 Encoding: UTF-8
 LazyData: true
-Imports: Seurat (>= 5.0.0),SeuratObject (>= 5.0.0), pracma, moments, stats
+Imports: Seurat (>= 5.0.0),SeuratObject (>= 5.0.0), pracma, moments, stats, Matrix
 RoxygenNote: 7.3.2
 Suggests: 
     testthat (>= 3.0.0)

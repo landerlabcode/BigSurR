@@ -151,13 +151,6 @@ BigSur <- function(seurat.obj,
 
       }
 
-    cor.signmat <- get.signMat(pcc)
-    print("Sign matrix calculated.")
-    if(log.file==T){
-      write(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": Sign matrix calculated."), file=fileConn, append=T)
-
-      }
-
     sig.pccs <- get.significant.PCCs(pcc, cor.p, num.genes, cor.alpha)
     print(paste0(format(Sys.time(), "%a %b %d %X %Y"), ": ", paste0("Number of remaining correlations:", Matrix::nnzero(sig.pccs[[1]])/2)))
     if(log.file==T){

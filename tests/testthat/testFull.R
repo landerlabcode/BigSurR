@@ -11,6 +11,8 @@ testSObj <- CreateSeuratObject(counts=testData)
 
 outObj <- BigSur(testSObj, correlations=T, cor.alpha=0.001)
 
+outObj@misc$BigSur.Correlations["CCDC69","CCDC71", drop=F]
+
 dim(outObj@misc$BigSur.Correlations)
 dim(outObj@misc$BigSur.log.adj.pvalues)
 
@@ -118,3 +120,6 @@ nb.only  <- setdiff(nb, pln)
 c(PLN = length(pln), NB = length(nb), shared = length(both),
   PLN.only = length(pln.only), NB.only = length(nb.only),
   jaccard = length(both) / length(union(pln, nb)))
+
+fns <- ls(asNamespace("pracma"))
+fns[sapply(fns, function(f) grepl(paste0("\\b", f, "\\s*\\("), src))]

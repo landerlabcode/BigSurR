@@ -1,5 +1,6 @@
 exportPattern("^[[:alpha:]]+")
 import(Seurat)
-import(pracma)
+importFrom(pracma, erfcinv)
 import(moments)
 import(stats)
+import(Matrix)
