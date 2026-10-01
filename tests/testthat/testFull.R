@@ -9,7 +9,7 @@ dimnames(testMat) <- list(testGenes, testCells)
 testData <- as(testMat, "CsparseMatrix")
 testSObj <- CreateSeuratObject(counts=testData)
 
-outObj <- BigSur(testSObj, correlations=T, cor.alpha=0.02)
+outObj <- BigSur(testSObj, correlations=T, cor.alpha=0.001)
 
 dim(outObj@misc$BigSur.Correlations)
 dim(outObj@misc$BigSur.log.adj.pvalues)
@@ -24,8 +24,8 @@ outObj@misc$BigSur.Theta
 #Test that output is consistent with the Poisson log-normal version of the code.
 x <- outObj@misc$BigSur.Correlations@x
 c(total = length(x), negative = sum(x < 0), positive = sum(x > 0))
-writeMM(outObj@misc$BigSur.Correlations, test_path("..", "mathematica", "rCorr2.mtx"))
-writeMM(outObj@misc$BigSur.log.adj.pvalues, test_path("..", "mathematica", "rPs2.mtx"))
+writeMM(outObj@misc$BigSur.Correlations, test_path("..", "mathematica", "rLowA.mtx"))
+writeMM(outObj@misc$BigSur.log.adj.pvalues, test_path("..", "mathematica", "rPsLowA.mtx"))
 ?writeMM
 write.csv(outObj@assays$RNA@layers$data, "rRes.csv")
 
@@ -98,6 +98,9 @@ c(raw_cutoff_R = if (any(cond)) sorted[max(which(cond))] else -Inf,
 #Test negative binomial version
 outObjNB <- BigSur(testSObj, correlations=T, cor.alpha=0.02, null.distribution="NB", log.file = F)
 outObjPLN <- BigSur(testSObj, correlations=T, cor.alpha=0.02, null.distribution="PLN", log.file = F)
+
+writeMM(outObjNB@misc$BigSur.Correlations, test_path("..", "mathematica", "rNBCorr.mtx"))
+writeMM(outObjNB@misc$BigSur.log.adj.pvalues, test_path("..", "mathematica", "rNBPs.mtx"))
 
 pair.keys <- function(sig) {
   ij <- which(as.matrix(sig != 0), arr.ind = TRUE)   # or summary(sig) for large sparse matrices

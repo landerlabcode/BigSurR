@@ -4,7 +4,7 @@
 #' @param assay Assay slot containing raw transcript counts (default "RNA").
 #' @param counts.slot Slot within assay containing raw counts matrix (default "counts").
 #' @param cv.est.method String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: 1) "Single": Determines a scalar value of c. 2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. 3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.
-#' @param null.distribution String. Sets the null distribution from which to estimate p-values for Fano factors and correlations. "NB": Negative binomial, "PLN": Poisson log-normal.
+#' @param null.distribution String. Sets the null distribution from which to estimate p-values for Fano factors and correlations. "NB": Negative binomial, "PLN": Poisson log-normal. (Defaults to negative binomial.)
 #' @param variable.features Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.
 #' @param correlations Boolean. If true, BigSur will identify statistically significant gene-gene correlations.
 #' @param first.pass.cutoff Integer. Removes roots before p-value calculations if the root is below Abs[Sqrt(2)*InverseErfc(2*10^-first.pass.cutoff)]. The higher the number, the more correlations are removed in initial screening.
