@@ -4,3 +4,25 @@ importFrom(pracma, erfcinv)
 import(moments)
 import(stats)
 import(Matrix)
+import(ggraph)
+importFrom(igraph,
+           graph_from_adjacency_matrix,
+           delete_vertices,
+           degree,
+           cluster_walktrap,
+           membership,
+           cut_at,
+           V,
+           E,
+           vcount,
+           plot.igraph,
+           "E<-",
+           "V<-",
+           delete_edges,
+           layout_with_drl,
+           layout_components,
+           layout_with_fr,
+           sizes,
+           edge_attr_names,
+           as_adjacency_matrix,
+           make_clusters)
