@@ -51,6 +51,7 @@ lay <- LayoutFromPos(adj.graph)
 subModules <- FindCorrelationModules(sub)
 mergedModules <- MergeSmallModules(sub, subModules)
 StaticCorrelationPlot(sub, highlight=c("BRCA1","BRCA2"), modules = subModules)
+StaticCorrelationPlot(sub, highlight=c("BRCA1","BRCA2"), modules = mergedModules)
 
 ggraph(adj.graph, layout = "manual", x = lay[, 1], y = lay[, 2]) +
   geom_edge_link(aes(color = weight > 0), width = 0.6, alpha = 0.7) +

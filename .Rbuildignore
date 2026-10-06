@@ -3,3 +3,6 @@
 ^mathematica$
 ^.claude$
 ^\.claude$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

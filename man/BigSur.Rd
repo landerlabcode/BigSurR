@@ -17,8 +17,8 @@ BigSur(
   fano.alpha = 0.05,
   min.fano = 1.5,
   cor.alpha = 0.05,
-  return.ps = T,
-  log.file = T,
+  block.size = 500,
+  log.file = F,
   log.file.dir = paste0(getwd(), "/BigSurRun", Sys.Date(), ".txt")
 )
 }
@@ -29,9 +29,9 @@ BigSur(
 
 \item{counts.slot}{Slot within assay containing raw counts matrix (default "counts").}
 
-\item{cv.est.method}{String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: \n1) "Single": Determines a scalar value of c. \n2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. \n3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.}
+\item{cv.est.method}{String. Sets the method used for determining the coefficient of variation used to define null distributions. There are three options here: 1) "Single": Determines a scalar value of c. 2) "MeanSpecific": Estimates the relationship between mean expression and the expected coefficient of variation and predicts a null value for each gene. 3)"TwoComponent": Estimates a the relationship between mean expression and the expected coefficient of variation using a two parameter fit.}
 
-\item{null.distribution}{String. Sets the null distribution from which to estimate p-values for Fano factors and correlations. "NB": Negative binomial, "PLN": Poisson log-normal.}
+\item{null.distribution}{String. Sets the null distribution from which to estimate p-values for Fano factors and correlations. "NB": Negative binomial, "PLN": Poisson log-normal. (Defaults to negative binomial.)}
 
 \item{variable.features}{Boolean. If true, BigSur will identify select variable features based on the modified corrected Fano factor.}
 
@@ -46,6 +46,8 @@ BigSur(
 \item{min.fano}{Double. Minimum mcFano value considered for variable genes.}
 
 \item{cor.alpha}{Double. Desired false discovery cutoff for labeling of statistically significant correlations.}
+
+\item{block.size}{Integer. Determines the block size for correlation cumulant calculation to relieve memory pressure at the cost of some speed. Number indicates the number of gene pairs evaluated at a time. (Default 500)}
 
 \item{log.file}{Boolean. If true, a log file will be created.}
 

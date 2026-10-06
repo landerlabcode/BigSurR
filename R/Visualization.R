@@ -1,5 +1,7 @@
 #' StaticCorrelationPlot
 #'
+#' Plots gene-gene correlations as a network graph. Positive correlations are shown in blue, negative in red. The length of the positive edges indicates the strength of that correlation.
+#'
 #' @param corr.matrix Sparse matrix containing the correlations of interest.
 #' @param highlight Vector of gene symbols to be highlighted. If supplied, the relevant gene symbols will be written in red.
 #' @param modules igraph communities object. If supplied, the nodes will change color and shape to indicate the module they belong to.
@@ -7,7 +9,6 @@
 #' @returns ggraph plot of correlations.
 #' @export
 #'
-#' @examples
 StaticCorrelationPlot <- function(
     corr.matrix,
     highlight = NULL,
@@ -58,14 +59,9 @@ StaticCorrelationPlot <- function(
 
 }
 
-ColorFunc1 <- function(adj.graph){
-  ifelse(E(adj.graph)$weight >0, "#005AB5", "#DC3220")
-}
-
 
 LayoutFromPos <- function(adj.graph){
   g.pos <- delete_edges(adj.graph, E(adj.graph)[weight < 0])
-  #layout <- layout_with_drl(g.pos, weights=E(g.pos)$weight)
   layout <- layout_components(g.pos, layout = layout_with_fr)
   return(layout)
 }

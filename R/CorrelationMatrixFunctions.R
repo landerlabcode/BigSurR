@@ -9,7 +9,6 @@
 #' @returns Sparse matrix (dsCMatrix) containing correlations meeting subset criteria.
 #' @export
 #'
-#' @examples
 SubsetCorrelationMatrix <- function(
     seuratObject,
     pCutoff=F,
@@ -132,7 +131,6 @@ MakeAdjGraph <- function(corr.matrix, keep.negative=TRUE){
 #' @returns igraph communities object containing the merged gene modules.
 #' @export
 #'
-#' @examples
 MergeSmallModules <- function(corr.matrix, modules, min.size = 15) {
   graph <- MakeAdjGraph(corr.matrix, keep.negative = FALSE)
   graph <- delete_vertices(graph, degree(graph) == 0)

@@ -57,6 +57,7 @@ Regardless of parameters:
 - Empirically estimates a per-gene value of the null coefficient of variation rather than using a single value.
 - Optimizes memory efficiency by minimizing the number of large matrices being stored in intermediate steps.
 - Outputs are now completely integrated into the Seurat object.
+- Added basic visualization and correlation matrix manipulation functions.
 
 ## Future updates
 - Estimating the null inverse square root Fano factor moments is a stochastic process leading to small differences in the number of significant correlations in each run. We would like to minimize this.
