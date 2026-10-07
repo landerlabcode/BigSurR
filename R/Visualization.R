@@ -44,7 +44,9 @@ StaticCorrelationPlot <- function(
   V(adj.graph)$hl <- V(adj.graph)$name %in% highlight
 
   ggraph(adj.graph, layout = "manual", x = lay[, 1], y = lay[, 2]) +
-    geom_edge_link(aes(color = weight > 0), width = 0.6, alpha = 0.7) +
+    #geom_edge_link(aes(color = weight > 0), width = 0.6, alpha = 0.7) +
+    geom_edge_link(aes(color = weight > 0, alpha = abs(weight)), width = 0.6) +
+    scale_edge_alpha(range = c(0.05, 0.6), guide = "none")+
     scale_edge_color_manual(values = c(`TRUE` = "#005AB5", `FALSE` = "#E8756A"),
                             guide = "none") +
     geom_node_point(aes(fill = fill, shape = shape), size = 3,

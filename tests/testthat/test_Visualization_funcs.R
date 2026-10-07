@@ -50,7 +50,12 @@ lay <- LayoutFromPos(adj.graph)
 
 subModules <- FindCorrelationModules(sub)
 mergedModules <- MergeSmallModules(sub, subModules)
-StaticCorrelationPlot(sub, highlight=c("BRCA1","BRCA2"), modules = subModules)
+
+modules <- FindCorrelationModules(corrMat)
+mergedAll <- MergeSmallModules(corrMat, modules)
+
+p<-StaticCorrelationPlot(corrMat, highlight=c("BRCA1","BRCA2"), modules = mergedAll)
+ggsave("~/Desktop/network.pdf", p, width = 24, height = 24, limitsize = FALSE)
 StaticCorrelationPlot(sub, highlight=c("BRCA1","BRCA2"), modules = mergedModules)
 
 ggraph(adj.graph, layout = "manual", x = lay[, 1], y = lay[, 2]) +
