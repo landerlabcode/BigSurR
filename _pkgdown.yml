@@ -1,4 +1,7 @@
 url:  https://landerlabcode.github.io/BigSurR/
 template:
   bootstrap: 5
-
+  includes:
+    after_body: |
+      <script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js"></script>
+      <script>mediumZoom('main img', { margin: 24, background: 'rgba(255,255,255,0.97)' });</script>

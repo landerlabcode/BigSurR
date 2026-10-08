@@ -171,3 +171,187 @@ MergeSmallModules <- function(corr.matrix, modules, min.size = 15) {
   names(comm) <- names(mem)
   make_clusters(graph, membership = comm, algorithm = "walktrap (merged)")
 }
+
+EigenvectorCentralityScores<- function(
+  corr.matrix,
+  pos.cutoff=0,
+  neg.cutoff=0
+){
+
+
+}
+
+ModuleMembershipScore<- function(
+  bigsur.residuals,
+  correlation.modules){
+
+}
+
+#' Plot positive and negative correlation density within and between communities
+#'
+#' @param corr.matrix Sparse gene x gene matrix of significant correlations
+#'   (nonzero = significant), with gene names as dimnames. Symmetric or one
+#'   triangle only; both work.
+#' @param communities An igraph communities object or a list of gene vectors.
+#' @param span Which communities to show (indices). Defaults to all.
+#' @param max.pos.fraction,max.neg.fraction Fraction that maps to full opacity.
+#' @param pos.color,neg.color Disk colors.
+#' @param max.size Disk size for the largest block.
+InterModuleCorrelations <- function(corr.matrix,
+                                       communities,
+                                       span = NULL,
+                                       max.pos.fraction = 0.02,
+                                       max.neg.fraction = 0.01,
+                                       pos.color = "forestgreen",
+                                       neg.color = "#DC3220",
+                                       max.size = 10) {
+  if (inherits(communities, "communities")) {
+    communities <- igraph::communities(communities)
+  }
+  if (is.null(span)) span <- seq_along(communities)
+  coms <- communities[span]
+  k <- length(coms)
+
+  # Full matrix with both triangles and an empty diagonal
+  # (adding the transpose fills in a missing triangle; only signs are used below)
+  M <- methods::as(methods::as(corr.matrix, "CsparseMatrix"), "generalMatrix")
+  M <- M + Matrix::t(M)
+  Matrix::diag(M) <- 0
+  M <- Matrix::drop0(M)
+
+  # Gene indices for each community, and a gene x community indicator matrix
+  idx <- lapply(coms, function(g) {
+    i <- match(g, rownames(M))
+    i[!is.na(i)]
+  })
+  Z <- Matrix::sparseMatrix(i = unlist(idx),
+                            j = rep(seq_len(k), lengths(idx)),
+                            x = 1, dims = c(nrow(M), k))
+
+  # Number of edges between each pair of communities (each pair counted once)
+  count.blocks <- function(A) {
+    C <- as.matrix(Matrix::crossprod(Z, A %*% Z))
+    diag(C) <- diag(C) / 2
+    C
+  }
+  pos <- count.blocks((M > 0) * 1)
+  neg <- count.blocks((M < 0) * 1)
+
+  # Number of possible gene pairs in each block
+  n <- lengths(idx)
+  maxlen <- outer(n, n)
+  diag(maxlen) <- choose(n, 2)
+
+  # Long data frame for the lower triangle
+  grid <- expand.grid(i = seq_len(k), j = seq_len(k))
+  grid <- grid[grid$i >= grid$j, ]
+  ij <- cbind(grid$i, grid$j)
+  grid$maxlen <- maxlen[ij]
+  grid$row.lab <- factor(span[grid$i], levels = rev(span))
+  grid$col.lab <- factor(span[grid$j], levels = span)
+
+  make.panel <- function(counts, max.frac, label) {
+    d <- grid
+    d$frac <- ifelse(d$maxlen > 0, counts[ij] / d$maxlen, 0)
+    d$alpha <- pmin(d$frac / max.frac, 1)
+    d$sign <- label
+    d
+  }
+  df <- rbind(make.panel(pos, max.pos.fraction, "Positive"),
+              make.panel(neg, max.neg.fraction, "Negative"))
+  df$sign <- factor(df$sign, levels = c("Positive", "Negative"))
+
+  ggplot2::ggplot(df, ggplot2::aes(x = col.lab, y = row.lab)) +
+    ggplot2::geom_tile(fill = "grey97", color = "white") +
+    # faint outline showing the disk size even when nothing is observed
+    ggplot2::geom_point(ggplot2::aes(size = maxlen), shape = 1,
+                        color = "grey85", stroke = 0.3) +
+    ggplot2::geom_point(ggplot2::aes(size = maxlen, alpha = alpha, color = sign)) +
+    ggplot2::scale_size_area(max_size = max.size, guide = "none") +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::scale_color_manual(values = c(Positive = pos.color,
+                                           Negative = neg.color),
+                                guide = "none") +
+    ggplot2::facet_wrap(~ sign) +
+    ggplot2::coord_fixed() +
+    ggplot2::labs(x = NULL, y = NULL,
+                  caption = sprintf("Full opacity = observed fraction of %g (positive), %g (negative)",
+                                    max.pos.fraction, max.neg.fraction)) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank())
+} {
+  if (inherits(communities, "communities")) {
+    communities <- igraph::communities(communities)
+  }
+  if (is.null(span)) span <- seq_along(communities)
+  coms <- communities[span]
+  k <- length(coms)
+
+  # Full matrix with both triangles and an empty diagonal
+  # (adding the transpose fills in a missing triangle; only signs are used below)
+  M <- methods::as(methods::as(corr.matrix, "CsparseMatrix"), "generalMatrix")
+  M <- M + Matrix::t(M)
+  Matrix::diag(M) <- 0
+  M <- Matrix::drop0(M)
+
+  # Gene indices for each community, and a gene x community indicator matrix
+  idx <- lapply(coms, function(g) {
+    i <- match(g, rownames(M))
+    i[!is.na(i)]
+  })
+  Z <- Matrix::sparseMatrix(i = unlist(idx),
+                            j = rep(seq_len(k), lengths(idx)),
+                            x = 1, dims = c(nrow(M), k))
+
+  # Number of edges between each pair of communities (each pair counted once)
+  count.blocks <- function(A) {
+    C <- as.matrix(Matrix::crossprod(Z, A %*% Z))
+    diag(C) <- diag(C) / 2
+    C
+  }
+  pos <- count.blocks((M > 0) * 1)
+  neg <- count.blocks((M < 0) * 1)
+
+  # Number of possible gene pairs in each block
+  n <- lengths(idx)
+  maxlen <- outer(n, n)
+  diag(maxlen) <- choose(n, 2)
+
+  # Long data frame for the lower triangle
+  grid <- expand.grid(i = seq_len(k), j = seq_len(k))
+  grid <- grid[grid$i >= grid$j, ]
+  ij <- cbind(grid$i, grid$j)
+  grid$maxlen <- maxlen[ij]
+  grid$row.lab <- factor(span[grid$i], levels = rev(span))
+  grid$col.lab <- factor(span[grid$j], levels = span)
+
+  make.panel <- function(counts, max.frac, label) {
+    d <- grid
+    d$frac <- ifelse(d$maxlen > 0, counts[ij] / d$maxlen, 0)
+    d$alpha <- pmin(d$frac / max.frac, 1)
+    d$sign <- label
+    d
+  }
+  df <- rbind(make.panel(pos, max.pos.fraction, "Positive"),
+              make.panel(neg, max.neg.fraction, "Negative"))
+  df$sign <- factor(df$sign, levels = c("Positive", "Negative"))
+
+  ggplot2::ggplot(df, ggplot2::aes(x = col.lab, y = row.lab)) +
+    ggplot2::geom_tile(fill = "grey97", color = "white") +
+    # faint outline showing the disk size even when nothing is observed
+    ggplot2::geom_point(ggplot2::aes(size = maxlen), shape = 1,
+                        color = "grey85", stroke = 0.3) +
+    ggplot2::geom_point(ggplot2::aes(size = maxlen, alpha = alpha, color = sign)) +
+    ggplot2::scale_size_area(max_size = max.size, guide = "none") +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::scale_color_manual(values = c(Positive = pos.color,
+                                           Negative = neg.color),
+                                guide = "none") +
+    ggplot2::facet_wrap(~ sign) +
+    ggplot2::coord_fixed() +
+    ggplot2::labs(x = NULL, y = NULL,
+                  caption = sprintf("Full opacity = observed fraction of %g (positive), %g (negative)",
+                                    max.pos.fraction, max.neg.fraction)) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(panel.grid = ggplot2::element_blank())
+}

@@ -67,3 +67,9 @@ LayoutFromPos <- function(adj.graph){
   layout <- layout_components(g.pos, layout = layout_with_fr)
   return(layout)
 }
+
+FeaturePlotMembershipScore<- function(umap, membership.scores){}
+
+
+
+
