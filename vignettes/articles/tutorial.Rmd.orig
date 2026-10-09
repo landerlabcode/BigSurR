@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
 BigSur (Basic Informatics and Gene Statistics from Unnormalized Reads) is a program which adjusts common statistics to account for the over-dispersed structure of scRNA-seq data and allows for the principled estimation of their respective p-values.
 
 This has been implemented to:
+
 1) Calculate and statistically evaluate a modified corrected Fano factor for use in feature selection.
+
 2) Calculate and statistically evaluate a modified corrected Pearson correlation coefficient to analyze gene-gene correlations.
 
 This tutorial will take you through a step-by-step tutorial of how to use both the feature selection and correlation calculation features of BigSur using the PBMC 2k dataset from 10X Genomics.
@@ -38,7 +40,7 @@ if (!dir.exists(data.dir)) {
   untar(tf, exdir = data.dir)
 }
 pbmc_data <- Read10X(file.path(data.dir, "filtered_gene_bc_matrices/hg19"))
-pbmc <- CreateSeuratObject(pbmc_data, features=names(keep_genes[keep_genes]))
+pbmc <- CreateSeuratObject(pbmc_data)
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 
@@ -122,11 +124,11 @@ if (!dir.exists(data.dir)) {
   untar(tf, exdir = data.dir)
 }
 pbmc_data <- Read10X(file.path(data.dir, "filtered_gene_bc_matrices/hg19"))
-pbmc <- CreateSeuratObject(pbmc_data, features=names(keep_genes[keep_genes]))
+pbmc <- CreateSeuratObject(pbmc_data)
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
-pbmc <- subset(pbmc, subset = nFeature_RNA > 1000 & percent.mt < 5)
+pbmc <- subset(pbmc, subset = nFeature_RNA > 900 & percent.mt < 5)
 
-#We need to also remove any genes with 0 UMI counts.
+#We need to also remove any genes with under 10 UMI counts.
 counts <- Seurat::GetAssayData(pbmc, assay = "RNA", layer = "counts")
 keep_genes <- Matrix::rowSums(counts) > 10
 pbmc <- subset(pbmc, features = names(keep_genes[keep_genes]))
@@ -154,24 +156,24 @@ Walk-trap often leads to the formation of many small modules. We can merge them 
 ```{r, include=T}
 pbmc_Modules_Merged <- MergeSmallModules(corr.matrix, pbmc_Modules, min.size=30)
 ```
-In this case, however, we see a few interesting modules right away. Let's take a look.
+In this case, however, we see a few interesting modules right away. Let's take a look at one of them.
 ```{r}
 mods <- igraph::communities(pbmc_Modules)
-mods <- mods[order(-sizes(pbmc_Modules))]
-sort(mods[[5]])
+mods <- mods[order(-igraph::sizes(pbmc_Modules))]
+sort(mods[[4]])
 ```
-This module contains maintenance markers of naïve memory CD4 T-cells (e.g., CCR7, SELL, LEF1, TCF7, IL7R, KLF2, FOXP1) indicating that we were able to pick up their regulatory activity through correlations.
+This module contains cytotoxic genes and markers of NK cells (e.g., GZMA, NKG7, GNLY, NCR1, CD244) indicating that we were able to pick up their regulatory activity through correlations.
 
 Correlations can be plotted using *StaticCorrelationPlot*. Modules can often be very large, which can be difficult to fully visualize. It is often better to subset the correlation matrix to only those with fairly high correlation coefficients and limited to individual or pairs of modules. Large positive correlations are more common than large negative ones, so a different threshold should be applied to each. We can subset the correlation matrix with *SubsetCorrelationMatrix*. We can threshold the p-value further with this as well.
-```{r mod5plot, dev="svglite", fig.width=12, fig.height=10, fig.link="figures/mod5plot-1.svg"}
+```{r mod5plot, dev="svglite", fig.width=40, fig.height=40, fig.link="figures/mod5plot-1.svg"}
 #Subset the correlation matrix to only the module 1 genes and threshold correlations further.For this particular tutorial, we will also remove all of the "RP" ribosomal genes, just for clarity.
-mod5_Genes <- sort(mods[[5]])
-mod5_Genes <- mod5_Genes[!startsWith(mod5_Genes, "RP")]
+mod4_Genes <- sort(mods[[4]])
+mod4_Genes <- mod4_Genes[!startsWith(mod4_Genes, "RP")]
 
-mod5_Matrix <- SubsetCorrelationMatrix(pbmc_Corr, pCutoff=0.001, minPosCorr = 0.2, minNegCorr = -0.1, genes = mod5_Genes)
+mod4_Matrix <- SubsetCorrelationMatrix(pbmc_Corr, pCutoff=0.001, minPosCorr = 0.2, minNegCorr = -0.1, genes = mod4_Genes)
 
 #Plot correlations from the new matrix. Genes can be highlighted using the "highlight" parameter.
-StaticCorrelationPlot(mod5_Matrix, highlight=c("CCR7", "SELL", "LEF1", "TCF7", "IL7R", "KLF2", "FOXP1"))
+StaticCorrelationPlot(mod4_Matrix, highlight=c("GZMA", "NKG7", "GNLY", "NCR1", "CD244"))
 ```
 
 ## Using negative correlations to identify cell state differences
@@ -180,34 +182,32 @@ Marker genes are typically defined by expression level. Genes which are more hig
 
 The function *IntermoduleCorrelations* will give you a sense of how correlated and anticorrelated the genes of different modules are. Let's see if we can find any that anti-correlate strongly with our naïve CD4 T-cell module.
 
-```{r intermodCorrs, dev="svglite", fig.width=12, fig.height=10, fig.link="figures/intermodCorrs-1.svg}
+```{r intermodCorrs, dev="svglite", fig.width=12, fig.height=10, fig.link="figures/intermodCorrs-1.svg"}
 InterModuleCorrelations(corr.matrix, mods, span=1:10)
 ```
-The naïve CD4 T cell module (module 5) and module 3 are highly anti-correlated with one another. Let's plot them. We can use the modules parameter to color the nodes differently.
-```{r mod5mod3, dev="svglite", fig.width=12, fig.height=10, fig.link="figures/mod5mod3-1.svg}
-#Grab the module 3 genes and combine them with module 5.
-mod5_Genes <- sort(mods[[5]])
+The naïve CD4 T cell module (module 4) and module 3 are show anti-correlation with one another. Let's plot them. We can use the modules parameter to color the nodes differently.
+```{r mod5mod3, dev="svglite", fig.width=40, fig.height=40, fig.link="figures/mod5mod3-1.svg"}
+#Grab the module 3 genes and combine them with module 4.
+mod4_Genes <- sort(mods[[4]])
 mod3_Genes <- sort(mods[[3]])
 
-mod3_mod5_Genes <- union(mod3_Genes, mod5_Genes)
-mod5_mod3_Matrix <- SubsetCorrelationMatrix(pbmc_Corr, pCutoff=0.001, minPosCorr = 0.2, minNegCorr = 0, genes = mod3_mod5_Genes)
 
-StaticCorrelationPlot(mod5_mod3_Matrix, highlight=c("CCR7", "SELL", "LEF1", "TCF7", "IL7R", "KLF2", "FOXP1", "NKG7","GNLY", "GZMA", "KLRF1", "NCAM1"))
+#These modules contain many genes, and many correlations which make these types of network plots difficult to view. We will cut down on the number of genes being shown by increasing our correlation thresholds.
+mod4_mod3_Genes <- union(mod3_Genes, mod4_Genes)
+mod4_mod3_Matrix <- SubsetCorrelationMatrix(pbmc_Corr, pCutoff=0.001, minPosCorr = 0.35, minNegCorr = -0.2, genes = mod4_mod3_Genes)
+
+StaticCorrelationPlot(mod4_mod3_Matrix, highlight=c("GZMA","GZMB","KLRF1","IL2RB", "NKG7", "GNLY", "NCR1", "CD244", "CSF3R", "S100A9","S100A8","LYZ","CEBPD","CD14","GRN","FCN1","CD68","SPI1","BATF3"), modules=pbmc_Modules)
 ```
-
-
-## Using correlations for feature selection
+Strong negative correlations between these two sets of genes are indicative of different cell states being present in the data (in this case, NK and myeloid cells.)
 
 
 ## Parameters in depth
 
-**cv.est.method: Estimating the null coefficient of variation**
-The original published version of BigSur used a single value of the null coefficient of variation (c) across all genes. However, there is evidence that there is a relationship between the mean expression of a gene and its expected value of c. Here, we are showing this relationship by plotting the 
+*cv.est.method*: Estimating the null coefficient of variation**
+The original published version of BigSur used a single value of the null coefficient of variation (c) across all genes. However, there is evidence that there is a relationship between the mean expression of a gene and its expected value of c. We've expanded BigSur to allow for this to be used in the estimation of the coefficient of variation. The cv.est.method controls which version of c estimation will be implemented. We recommend the default be used primarily. The eta parameter is disabled by default as it, by being the one which pulls the modified corrected Fano factor away from a median of 1 at low expression, is likely to be mostly attributed to cell state heterogeneity.
 
-We've expanded BigSur to allow for this to be used in the estimation of the coefficient of variation. The cv.est.method controls which version of c estimation will be implemented. We recommend the default be used primarily. The eta parameter 
-
-**null.distribution: Choosing the underlying null distribution for p-value estimation**
+*null.distribution*: Choosing the underlying null distribution for p-value estimation**
 The original published version of BigSur used the Poisson log-normal distribution as the expected distribution of counts data. We've added the negative binomial distribution as well. The underlying methodology does not change between the two (they are both compound Poisson distributions), only the null cumulant calculation. These two distributions are qualitatively quite similar up until the upper moments. Anecdotally, the negative binomial null allows for more correlations to pass the significance threshold (small effect).
 
-**block.size: The number of gene-gene pairs to determine Cornish Fisher coefficients and perform initial significance testing on at a time**
+*block.size*: The number of gene-gene pairs to determine Cornish Fisher coefficients and perform initial significance testing on at a time**
 The original BigSur code had problems with memory consumption when calculating the Cornish Fisher coefficients for the correlations. In theory, increasing the block size should increase computational speed at the cost of memory consumption but it is unclear what the exact relationship is.
