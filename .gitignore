@@ -11,3 +11,4 @@ tests/testthat/fixtures/*.csv
 tests/testthat/fixtures/*.mtx
 tests/testthat/fixtures/*.rds
 docs
+tests/

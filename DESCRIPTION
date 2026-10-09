@@ -1,7 +1,7 @@
 Package: BigSur
 Type: Package
 Title: BigSur (Basic Informatics and Gene Statistics from Unnormalized Reads)
-Version: 1.0.2
+Version: 2.0.1
 Author: Kai Silkwood
 Maintainer: Kai Silkwood <ksilkwoo@uci.edu>
 Description: BigSur is a tool for single cell RNA sequencing analysis which interfaces with Seurat objects to both 
@@ -12,7 +12,4 @@ Encoding: UTF-8
 LazyData: true
 Imports: Seurat (>= 5.0.0),SeuratObject (>= 5.0.0), pracma, moments, stats, Matrix, igraph, ggraph
 RoxygenNote: 7.3.2
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
-Config/Needs/website: rmarkdown
+Config/Needs/website: rmarkdown, svglite, visNetwork
