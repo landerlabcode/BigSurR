@@ -223,21 +223,21 @@ pbmc_BS <- RunUMAP(object = pbmc_BS, dims = 1:20)
 #> Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 #> To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 #> This message will be shown once per session
-#> 14:19:18 UMAP embedding parameters a = 0.9922 b = 1.112
-#> 14:19:18 Read 2638 rows and found 20 numeric columns
-#> 14:19:18 Using Annoy for neighbor search, n_neighbors = 30
-#> 14:19:18 Building Annoy index with metric = cosine, n_trees = 50
+#> 14:42:27 UMAP embedding parameters a = 0.9922 b = 1.112
+#> 14:42:27 Read 2638 rows and found 20 numeric columns
+#> 14:42:27 Using Annoy for neighbor search, n_neighbors = 30
+#> 14:42:27 Building Annoy index with metric = cosine, n_trees = 50
 #> 0%   10   20   30   40   50   60   70   80   90   100%
 #> [----|----|----|----|----|----|----|----|----|----|
 #> **************************************************|
-#> 14:19:18 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpvH6HMX/file237543058d03
-#> 14:19:18 Searching Annoy index using 1 thread, search_k = 3000
-#> 14:19:18 Annoy recall = 100%
-#> 14:19:19 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30
-#> 14:19:19 Initializing from normalized Laplacian + noise (using RSpectra)
-#> 14:19:19 Commencing optimization for 500 epochs, with 109526 positive edges
-#> 14:19:19 Using rng type: pcg
-#> 14:19:21 Optimization finished
+#> 14:42:27 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpSqZGTT/file27954bcae635
+#> 14:42:27 Searching Annoy index using 1 thread, search_k = 3000
+#> 14:42:27 Annoy recall = 100%
+#> 14:42:27 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30
+#> 14:42:28 Initializing from normalized Laplacian + noise (using RSpectra)
+#> 14:42:28 Commencing optimization for 500 epochs, with 109526 positive edges
+#> 14:42:28 Using rng type: pcg
+#> 14:42:30 Optimization finished
 DimPlot(object = pbmc_BS, reduction = "umap")
 ```
 
@@ -304,21 +304,21 @@ pbmc <- FindClusters(object = pbmc)
 #> Number of communities: 9
 #> Elapsed time: 0 seconds
 pbmc <- RunUMAP(object = pbmc, dims = 1:30)
-#> 14:19:28 UMAP embedding parameters a = 0.9922 b = 1.112
-#> 14:19:28 Read 2638 rows and found 30 numeric columns
-#> 14:19:28 Using Annoy for neighbor search, n_neighbors = 30
-#> 14:19:28 Building Annoy index with metric = cosine, n_trees = 50
+#> 14:42:36 UMAP embedding parameters a = 0.9922 b = 1.112
+#> 14:42:36 Read 2638 rows and found 30 numeric columns
+#> 14:42:36 Using Annoy for neighbor search, n_neighbors = 30
+#> 14:42:36 Building Annoy index with metric = cosine, n_trees = 50
 #> 0%   10   20   30   40   50   60   70   80   90   100%
 #> [----|----|----|----|----|----|----|----|----|----|
 #> **************************************************|
-#> 14:19:28 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpvH6HMX/file23752a3be1be
-#> 14:19:28 Searching Annoy index using 1 thread, search_k = 3000
-#> 14:19:28 Annoy recall = 100%
-#> 14:19:28 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30
-#> 14:19:28 Initializing from normalized Laplacian + noise (using RSpectra)
-#> 14:19:28 Commencing optimization for 500 epochs, with 109698 positive edges
-#> 14:19:28 Using rng type: pcg
-#> 14:19:30 Optimization finished
+#> 14:42:37 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpSqZGTT/file27953ad0ae03
+#> 14:42:37 Searching Annoy index using 1 thread, search_k = 3000
+#> 14:42:37 Annoy recall = 100%
+#> 14:42:37 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30
+#> 14:42:37 Initializing from normalized Laplacian + noise (using RSpectra)
+#> 14:42:37 Commencing optimization for 500 epochs, with 109698 positive edges
+#> 14:42:37 Using rng type: pcg
+#> 14:42:40 Optimization finished
 DimPlot(object = pbmc, reduction = "umap")
 ```
 
@@ -327,8 +327,7 @@ case, we have very well defined differences between our cell states
 meaning the feature selection method used will have very little impact
 on the output clusters and dimensionality reduction. Still, we are able
 to pull a few cells out into their own distinct clusters in UMAP space
-that was missed with the standard approach (e.g., cluster 8 and 3 with
-BigSur vs. cluster 4 with the standard approach).
+that were missed with the standard approach.
 
 ## Correlation Analysis with BigSur
 
@@ -389,7 +388,7 @@ pbmc_Corr <- BigSur(pbmc, correlations=TRUE)
 #> [1] "P-values calculated."
 #> [1] "Calculating significance for modified-corrected PCCs."
 #> [1] "Done."
-#> [1] "Fri Oct 09 14:21:46 2026: Number of remaining correlations:170469"
+#> [1] "Fri Oct 09 14:44:56 2026: Number of remaining correlations:170469"
 #> [1] "Pipeline complete."
 ```
 
@@ -586,9 +585,9 @@ InterModuleCorrelations(corr.matrix, mods, span=1:10)
 
 [![plot of chunk
 intermodCorrs](figures/intermodCorrs-1.svg)](https://landerlabcode.github.io/BigSurR/articles/figures/intermodCorrs-1.svg)
-The naïve CD4 T cell module (module 4) and module 3 are show
-anti-correlation with one another. Let’s plot them. We can use the
-modules parameter to color the nodes differently.
+The NK cell module (module 4) and module 3 are show anti-correlation
+with one another. Let’s plot them. We can use the modules parameter to
+color the nodes differently.
 
 ``` r
 

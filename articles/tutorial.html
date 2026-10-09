@@ -263,21 +263,21 @@ had run NormalizeData.</p>
 <span><span class="co">#&gt; Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric</span></span>
 <span><span class="co">#&gt; To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'</span></span>
 <span><span class="co">#&gt; This message will be shown once per session</span></span>
-<span><span class="co">#&gt; 14:19:18 UMAP embedding parameters a = 0.9922 b = 1.112</span></span>
-<span><span class="co">#&gt; 14:19:18 Read 2638 rows and found 20 numeric columns</span></span>
-<span><span class="co">#&gt; 14:19:18 Using Annoy for neighbor search, n_neighbors = 30</span></span>
-<span><span class="co">#&gt; 14:19:18 Building Annoy index with metric = cosine, n_trees = 50</span></span>
+<span><span class="co">#&gt; 14:42:27 UMAP embedding parameters a = 0.9922 b = 1.112</span></span>
+<span><span class="co">#&gt; 14:42:27 Read 2638 rows and found 20 numeric columns</span></span>
+<span><span class="co">#&gt; 14:42:27 Using Annoy for neighbor search, n_neighbors = 30</span></span>
+<span><span class="co">#&gt; 14:42:27 Building Annoy index with metric = cosine, n_trees = 50</span></span>
 <span><span class="co">#&gt; 0%   10   20   30   40   50   60   70   80   90   100%</span></span>
 <span><span class="co">#&gt; [----|----|----|----|----|----|----|----|----|----|</span></span>
 <span><span class="co">#&gt; **************************************************|</span></span>
-<span><span class="co">#&gt; 14:19:18 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpvH6HMX/file237543058d03</span></span>
-<span><span class="co">#&gt; 14:19:18 Searching Annoy index using 1 thread, search_k = 3000</span></span>
-<span><span class="co">#&gt; 14:19:18 Annoy recall = 100%</span></span>
-<span><span class="co">#&gt; 14:19:19 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span>
-<span><span class="co">#&gt; 14:19:19 Initializing from normalized Laplacian + noise (using RSpectra)</span></span>
-<span><span class="co">#&gt; 14:19:19 Commencing optimization for 500 epochs, with 109526 positive edges</span></span>
-<span><span class="co">#&gt; 14:19:19 Using rng type: pcg</span></span>
-<span><span class="co">#&gt; 14:19:21 Optimization finished</span></span>
+<span><span class="co">#&gt; 14:42:27 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpSqZGTT/file27954bcae635</span></span>
+<span><span class="co">#&gt; 14:42:27 Searching Annoy index using 1 thread, search_k = 3000</span></span>
+<span><span class="co">#&gt; 14:42:27 Annoy recall = 100%</span></span>
+<span><span class="co">#&gt; 14:42:27 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span>
+<span><span class="co">#&gt; 14:42:28 Initializing from normalized Laplacian + noise (using RSpectra)</span></span>
+<span><span class="co">#&gt; 14:42:28 Commencing optimization for 500 epochs, with 109526 positive edges</span></span>
+<span><span class="co">#&gt; 14:42:28 Using rng type: pcg</span></span>
+<span><span class="co">#&gt; 14:42:30 Optimization finished</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html" class="external-link">DimPlot</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc_BS</span>, reduction <span class="op">=</span> <span class="st">"umap"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figures/unnamed-chunk-6-1.png" alt="plot of chunk unnamed-chunk-6"> Let’s compare this to what we get
 using the standard feature selection approach.</p>
@@ -339,29 +339,28 @@ using the standard feature selection approach.</p>
 <span><span class="co">#&gt; Number of communities: 9</span></span>
 <span><span class="co">#&gt; Elapsed time: 0 seconds</span></span>
 <span><span class="va">pbmc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html" class="external-link">RunUMAP</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc</span>, dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 14:19:28 UMAP embedding parameters a = 0.9922 b = 1.112</span></span>
-<span><span class="co">#&gt; 14:19:28 Read 2638 rows and found 30 numeric columns</span></span>
-<span><span class="co">#&gt; 14:19:28 Using Annoy for neighbor search, n_neighbors = 30</span></span>
-<span><span class="co">#&gt; 14:19:28 Building Annoy index with metric = cosine, n_trees = 50</span></span>
+<span><span class="co">#&gt; 14:42:36 UMAP embedding parameters a = 0.9922 b = 1.112</span></span>
+<span><span class="co">#&gt; 14:42:36 Read 2638 rows and found 30 numeric columns</span></span>
+<span><span class="co">#&gt; 14:42:36 Using Annoy for neighbor search, n_neighbors = 30</span></span>
+<span><span class="co">#&gt; 14:42:36 Building Annoy index with metric = cosine, n_trees = 50</span></span>
 <span><span class="co">#&gt; 0%   10   20   30   40   50   60   70   80   90   100%</span></span>
 <span><span class="co">#&gt; [----|----|----|----|----|----|----|----|----|----|</span></span>
 <span><span class="co">#&gt; **************************************************|</span></span>
-<span><span class="co">#&gt; 14:19:28 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpvH6HMX/file23752a3be1be</span></span>
-<span><span class="co">#&gt; 14:19:28 Searching Annoy index using 1 thread, search_k = 3000</span></span>
-<span><span class="co">#&gt; 14:19:28 Annoy recall = 100%</span></span>
-<span><span class="co">#&gt; 14:19:28 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span>
-<span><span class="co">#&gt; 14:19:28 Initializing from normalized Laplacian + noise (using RSpectra)</span></span>
-<span><span class="co">#&gt; 14:19:28 Commencing optimization for 500 epochs, with 109698 positive edges</span></span>
-<span><span class="co">#&gt; 14:19:28 Using rng type: pcg</span></span>
-<span><span class="co">#&gt; 14:19:30 Optimization finished</span></span>
+<span><span class="co">#&gt; 14:42:37 Writing NN index file to temp file /var/folders/5x/lylfytj53nnc4113k2v1khh80000gn/T//RtmpSqZGTT/file27953ad0ae03</span></span>
+<span><span class="co">#&gt; 14:42:37 Searching Annoy index using 1 thread, search_k = 3000</span></span>
+<span><span class="co">#&gt; 14:42:37 Annoy recall = 100%</span></span>
+<span><span class="co">#&gt; 14:42:37 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span>
+<span><span class="co">#&gt; 14:42:37 Initializing from normalized Laplacian + noise (using RSpectra)</span></span>
+<span><span class="co">#&gt; 14:42:37 Commencing optimization for 500 epochs, with 109698 positive edges</span></span>
+<span><span class="co">#&gt; 14:42:37 Using rng type: pcg</span></span>
+<span><span class="co">#&gt; 14:42:40 Optimization finished</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html" class="external-link">DimPlot</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">pbmc</span>, reduction <span class="op">=</span> <span class="st">"umap"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="figures/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"> In this case, we have very well
 defined differences between our cell states meaning the feature
 selection method used will have very little impact on the output
 clusters and dimensionality reduction. Still, we are able to pull a few
-cells out into their own distinct clusters in UMAP space that was missed
-with the standard approach (e.g., cluster 8 and 3 with BigSur
-vs. cluster 4 with the standard approach).</p>
+cells out into their own distinct clusters in UMAP space that were
+missed with the standard approach.</p>
 </div>
 <div class="section level2">
 <h2 id="correlation-analysis-with-bigsur">Correlation Analysis with BigSur<a class="anchor" aria-label="anchor" href="#correlation-analysis-with-bigsur"></a>
@@ -417,7 +416,7 @@ parameter to TRUE.</p>
 <span><span class="co">#&gt; [1] "P-values calculated."</span></span>
 <span><span class="co">#&gt; [1] "Calculating significance for modified-corrected PCCs."</span></span>
 <span><span class="co">#&gt; [1] "Done."</span></span>
-<span><span class="co">#&gt; [1] "Fri Oct 09 14:21:46 2026: Number of remaining correlations:170469"</span></span>
+<span><span class="co">#&gt; [1] "Fri Oct 09 14:44:56 2026: Number of remaining correlations:170469"</span></span>
 <span><span class="co">#&gt; [1] "Pipeline complete."</span></span></code></pre></div>
 <p>Most parameters related to correlation calculation control various
 false discovery thresholds early on to save on computational time and
@@ -585,9 +584,9 @@ Let’s see if we can find any that anti-correlate strongly with our naïve
 CD4 T-cell module.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">InterModuleCorrelations</span><span class="op">(</span><span class="va">corr.matrix</span>, <span class="va">mods</span>, span<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-<p><a href="figures/intermodCorrs-1.svg"><img src="figures/intermodCorrs-1.svg" alt="plot of chunk intermodCorrs"></a> The naïve CD4 T cell module
-(module 4) and module 3 are show anti-correlation with one another.
-Let’s plot them. We can use the modules parameter to color the nodes
+<p><a href="figures/intermodCorrs-1.svg"><img src="figures/intermodCorrs-1.svg" alt="plot of chunk intermodCorrs"></a> The NK cell module (module 4)
+and module 3 are show anti-correlation with one another. Let’s plot
+them. We can use the modules parameter to color the nodes
 differently.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Grab the module 3 genes and combine them with module 4.</span></span>
