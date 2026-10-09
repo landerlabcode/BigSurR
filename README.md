@@ -6,6 +6,10 @@ BigSur is a tool for single cell RNA sequencing analysis which interfaces with S
 
 The principles surrounding these analyses are described in ["Leveraging gene correlations in single cell transcriptomic data"][1] and ["Statistically principled feature selection for single cell transcriptomics"][2].
 
+## Tutorial
+
+See the [BigSur tutorial](https://landerlabcode.github.io/BigSurR/articles/tutorial.html) for a full walkthrough using the PBMC 3k dataset.
+
 ## Installation
 BigSurR can be installed directly from github using the devtools package.
 ```{r}
