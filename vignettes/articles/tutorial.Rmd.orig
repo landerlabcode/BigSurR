@@ -108,7 +108,7 @@ pbmc <- FindClusters(object = pbmc)
 pbmc <- RunUMAP(object = pbmc, dims = 1:30)
 DimPlot(object = pbmc, reduction = "umap")
 ```
-In this case, we have very well defined differences between our cell states meaning the feature selection method used will have very little impact on the output clusters and dimensionality reduction. Still, we are able to pull a few cells out into their own distinct clusters in UMAP space that was missed with the standard approach (e.g., cluster 8 and 3 with BigSur vs. cluster 4 with the standard approach).
+In this case, we have very well defined differences between our cell states meaning the feature selection method used will have very little impact on the output clusters and dimensionality reduction. Still, we are able to pull a few cells out into their own distinct clusters in UMAP space that were missed with the standard approach.
 
 ## Correlation Analysis with BigSur
 
@@ -185,7 +185,7 @@ The function *IntermoduleCorrelations* will give you a sense of how correlated a
 ```{r intermodCorrs, dev="svglite", fig.width=12, fig.height=10, fig.link="figures/intermodCorrs-1.svg"}
 InterModuleCorrelations(corr.matrix, mods, span=1:10)
 ```
-The naïve CD4 T cell module (module 4) and module 3 are show anti-correlation with one another. Let's plot them. We can use the modules parameter to color the nodes differently.
+The NK cell module (module 4) and module 3 are show anti-correlation with one another. Let's plot them. We can use the modules parameter to color the nodes differently.
 ```{r mod5mod3, dev="svglite", fig.width=40, fig.height=40, fig.link="figures/mod5mod3-1.svg"}
 #Grab the module 3 genes and combine them with module 4.
 mod4_Genes <- sort(mods[[4]])
