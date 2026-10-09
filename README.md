@@ -39,6 +39,7 @@ Pass this object into the BigSur function with the desired parameters. The param
 - **fano.alpha**: Double. Desired false discovery cutoff for labeling of variable features. (Default 0.05).
 - **min.fano**: Double. Minimum mcFano value considered for variable genes.
 - **cor.alpha**: Double. Desired false discovery cutoff for labeling of statistically significant correlations.
+- **block.size**: Integer. Determines the block size for correlation cumulant calculation to relieve memory pressure at the cost of some speed. Number indicates the number of gene pairs evaluated at a time. (Default 500)
 - **log.file**: Boolean. If true, a log file will be created.
 - **log.file.dir**: String. Path of desired location for log file. *Note: Default string is set to work on Unix based file structures (i.e., manually set this on Windows).
 
