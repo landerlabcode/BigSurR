@@ -1,0 +1,9 @@
+pandoc: '3.10'
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  articles/tutorial: tutorial.html
+last_built: 2026-10-09T21:33Z
+urls:
+  reference: https://landerlabcode.github.io/BigSurR/reference
+  article: https://landerlabcode.github.io/BigSurR/articles
