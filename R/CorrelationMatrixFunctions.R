@@ -169,7 +169,11 @@ MergeSmallModules <- function(corr.matrix, modules, min.size = 15) {
   }
 
   names(comm) <- names(mem)
-  make_clusters(graph, membership = comm, algorithm = "walktrap (merged)")
+
+  new.mods <- make_clusters(graph, membership = comm, algorithm = "walktrap (merged)")
+  new.mods$names <- V(graph)$name
+
+  return(new.mods)
 }
 
 EigenvectorCentralityScores<- function(
