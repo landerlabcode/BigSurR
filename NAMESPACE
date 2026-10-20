@@ -28,3 +28,4 @@ importFrom(igraph,
            make_clusters)
 importFrom(ggplot2, aes, scale_color_manual, scale_fill_identity,
            scale_shape_identity, theme_void)
+import(patchwork)
