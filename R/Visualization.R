@@ -5,7 +5,7 @@
 #' @param corr.matrix Sparse matrix containing the correlations of interest.
 #' @param highlight Vector of gene symbols to be highlighted. If supplied, the relevant gene symbols will be written in red.
 #' @param modules igraph communities object. If supplied, the nodes will change color and shape to indicate the module they belong to.
-#'
+#' @param module.labels Vector of labels to describe plotted modules. If NULL, they will be labeled as Module 1, Module 2, etc.
 #' @returns ggraph plot of correlations.
 #' @export
 #'
@@ -27,7 +27,8 @@ StaticCorrelationPlot <- function(
   if (!is.null(modules)) {
     mem <- membership(modules)
     size.rank <- rank(-sizes(modules), ties.method = "first")
-    m <- size.rank[as.integer(mem[V(adj.graph)$name])]  # NA = not in a module
+    m <- unname(size.rank[as.character(mem[V(adj.graph)$name])])
+
 
     n.col  <- 8
     pal    <- hcl.colors(n.col, "Dark 3")
@@ -35,7 +36,17 @@ StaticCorrelationPlot <- function(
 
     node.fill  <- ifelse(is.na(m), "grey85", pal[(m - 1) %% n.col + 1])
     node.shape <- ifelse(is.na(m), 21, shapes[((m - 1) %/% n.col) %% length(shapes) + 1])
+    ids  <- names(igraph::sizes(modules))
+    labs <- if (is.null(module.labels)) paste("Module", ids) else module.labels
+    names(labs) <- ids
+    node.label <- ifelse(is.na(m), "Unassigned", unname(labs[as.character(mem[igraph::V(adj.graph)$name])]))
   }
+  if (is.null(modules)) node.label <- rep("All genes", igraph::vcount(adj.graph))
+  V(adj.graph)$module <- node.label
+
+  leg.fill  <- tapply(node.fill,  node.label, `[`, 1)   # one color per label
+  leg.shape <- tapply(node.shape, node.label, `[`, 1)   # one shape per label
+  leg.guide <- if (is.null(modules)) "none" else guide_legend(override.aes = list(size = 4))
 
   V(adj.graph)$fill <-node.fill
   V(adj.graph)$shape <- node.shape
@@ -49,10 +60,10 @@ StaticCorrelationPlot <- function(
     scale_edge_alpha(range = c(0.05, 0.6), guide = "none")+
     scale_edge_color_manual(values = c(`TRUE` = "#005AB5", `FALSE` = "#E8756A"),
                             guide = "none") +
-    geom_node_point(aes(fill = fill, shape = shape), size = 3,
+    geom_node_point(aes(fill = module, shape = module), size = 3,
                     color = "grey20", stroke = 0.3) +
-    scale_fill_identity() +
-    scale_shape_identity() +
+    scale_fill_manual(name = "Module", values = leg.fill, guide = leg.guide) +
+    scale_shape_manual(name = "Module", values = leg.shape, guide = leg.guide) +
     geom_node_text(aes(label = name, color = hl), repel = TRUE, size = 2.5,
                    fontface = "bold", max.overlaps = Inf) +
     scale_color_manual(values = c(`TRUE` = "red", `FALSE` = "black"),
