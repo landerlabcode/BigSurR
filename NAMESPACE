@@ -26,6 +26,6 @@ importFrom(igraph,
            edge_attr_names,
            as_adjacency_matrix,
            make_clusters)
-importFrom(ggplot2, aes, scale_color_manual, scale_fill_identity,
+importFrom(ggplot2, aes, scale_shape_manual, scale_color_manual, scale_fill_identity,
            scale_shape_identity, theme_void, guide_legend, scale_fill_manual)
 import(patchwork)
