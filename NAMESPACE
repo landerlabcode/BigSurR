@@ -29,4 +29,3 @@ importFrom(igraph,
 importFrom(ggplot2, aes, scale_color_manual, scale_fill_identity,
            scale_shape_identity, theme_void, guide_legend, scale_fill_manual)
 import(patchwork)
-importFrom(grDevices, hcl.colors)
