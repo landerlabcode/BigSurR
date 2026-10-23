@@ -12,7 +12,8 @@
 StaticCorrelationPlot <- function(
     corr.matrix,
     highlight = NULL,
-    modules = NULL
+    modules = NULL,
+    module.labels = NULL
     ){
   #Create underlying graph embedding
   adj.graph <- MakeAdjGraph(corr.matrix)
